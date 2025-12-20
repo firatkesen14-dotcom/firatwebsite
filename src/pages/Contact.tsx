@@ -1,96 +1,55 @@
 import { Mail, ExternalLink } from "lucide-react";
-import Layout from "@/components/Layout";
 
 const Contact = () => {
   return (
-    <Layout>
-      <title>Contact — Fırat Kesen</title>
-      <meta
-        name="description"
-        content="Get in touch with Fırat Kesen for industrial design collaborations and project inquiries."
-      />
+    <section className="min-h-[100vh] flex items-center py-16 md:py-24 bg-gray-900 text-white">
+      <div className="container mx-auto text-center">
+        {/* Header */}
+        <header className="mb-16">
+          <h1 className="text-4xl md:text-5xl font-light mb-4">Contact</h1>
+          <p className="text-gray-400">Open for collaborations and opportunities</p>
+        </header>
 
-      <section className="min-h-[calc(100vh-10rem)] flex items-center py-16 md:py-24">
-        <div className="container-narrow">
-          <div className="max-w-xl mx-auto text-center">
-            {/* Page Header */}
-            <header className="mb-16 opacity-0 animate-fade-in-up">
-              <h1 className="text-4xl md:text-5xl font-light text-foreground tracking-tight mb-4">
-                Contact
-              </h1>
-              <p className="text-muted-foreground">
-                Open for collaborations and opportunities
-              </p>
-            </header>
-
-            {/* Email Link */}
-            <div className="mb-12 flex flex-col items-center gap-4 opacity-0 animate-fade-in-up stagger-1">
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.open(
-                    "https://mail.google.com/mail/?view=cm&fs=1&to=firatkesen14@gmail.com",
-                    "_blank"
-                  );
-                }}
-                className="group inline-flex items-center gap-3 text-xl md:text-2xl text-foreground hover:text-muted-foreground transition-colors duration-300"
-              >
-                <Mail
-                  size={24}
-                  className="text-red-500 group-hover:text-blue-500 transition-colors duration-300"
-                />
-                <span className="tracking-wide">Send Email via Gmail</span>
-              </a>
-            </div>
-
-            {/* Divider */}
-            <div className="section-divider max-w-xs mx-auto mb-12 opacity-0 animate-fade-in stagger-2" />
-
-            {/* Social Links */}
-            <div className="flex items-center justify-center gap-8 opacity-0 animate-fade-in-up stagger-3">
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.open(
-                    "https://www.fiverr.com/sellers/firatkesen/edit",
-                    "_blank"
-                  );
-                }}
-                className="group flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
-              >
-                <span className="tracking-wide">Fiverr</span>
-                <ExternalLink
-                  size={14}
-                  className="opacity-50 group-hover:opacity-100 transition-opacity duration-300"
-                />
-              </a>
-
-              <span className="text-border">|</span>
-
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.open(
-                    "https://www.upwork.com/freelancers/~012282e88904824f59?viewMode=1",
-                    "_blank"
-                  );
-                }}
-                className="group flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
-              >
-                <span className="tracking-wide">Upwork</span>
-                <ExternalLink
-                  size={14}
-                  className="opacity-50 group-hover:opacity-100 transition-opacity duration-300"
-                />
-              </a>
-            </div>
-          </div>
+        {/* Email */}
+        <div className="mb-12 flex flex-col items-center gap-4">
+          <a
+            href="mailto:firatkesen14@gmail.com"
+            className="group inline-flex items-center gap-3 text-xl md:text-2xl text-white hover:text-gray-300 transition-colors duration-300"
+          >
+            <Mail size={24} className="text-red-500 group-hover:text-blue-500 transition-colors duration-300" />
+            <span>firatkesen14@gmail.com</span>
+          </a>
         </div>
-      </section>
-    </Layout>
+
+        {/* Divider */}
+        <div className="border-t border-gray-700 max-w-xs mx-auto mb-12" />
+
+        {/* Social Links */}
+        <div className="flex items-center justify-center gap-8">
+          <a
+            href="https://www.fiverr.com/sellers/firatkesen/edit"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors duration-300"
+          >
+            <span>Fiverr</span>
+            <ExternalLink size={14} className="opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
+          </a>
+
+          <span className="text-gray-600">|</span>
+
+          <a
+            href="https://www.upwork.com/freelancers/~012282e88904824f59?viewMode=1"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors duration-300"
+          >
+            <span>Upwork</span>
+            <ExternalLink size={14} className="opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
+          </a>
+        </div>
+      </div>
+    </section>
   );
 };
 
