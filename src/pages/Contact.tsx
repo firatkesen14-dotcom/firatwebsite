@@ -23,13 +23,13 @@ const Contact = () => {
               </p>
             </header>
 
-            {/* Email Links */}
+            {/* Email Link */}
             <div className="mb-12 flex flex-col items-center gap-4 opacity-0 animate-fade-in-up stagger-1">
-              {/* Gmail web link */}
               <a
                 href="https://mail.google.com/mail/?view=cm&fs=1&to=firatkesen14@gmail.com"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
                 className="group inline-flex items-center gap-3 text-xl md:text-2xl text-foreground hover:text-muted-foreground transition-colors duration-300"
               >
                 <Mail
@@ -49,6 +49,7 @@ const Contact = () => {
                 href="https://www.fiverr.com/sellers/firatkesen/edit"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
                 className="group flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
               >
                 <span className="tracking-wide">Fiverr</span>
@@ -64,6 +65,7 @@ const Contact = () => {
                 href="https://www.upwork.com/freelancers/~012282e88904824f59?viewMode=1"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
                 className="group flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
               >
                 <span className="tracking-wide">Upwork</span>
