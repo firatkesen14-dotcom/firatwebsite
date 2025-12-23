@@ -1,59 +1,8 @@
-import { useEffect, useRef } from "react";
-
 const AboutSection = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const photoRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    const photo = photoRef.current;
-    if (!container || !photo) return;
-
-    let mouseX = 0;
-    let mouseY = 0;
-    let currentScroll = window.scrollY;
-
-    const onMouseMove = (e: MouseEvent) => {
-      const rect = container.getBoundingClientRect();
-      mouseX = (e.clientX - rect.left) / rect.width - 0.5;
-      mouseY = (e.clientY - rect.top) / rect.height - 0.5;
-    };
-
-    const onScroll = () => {
-      currentScroll = window.scrollY;
-    };
-
-    const animate = () => {
-      const scrollEffect = currentScroll * 0.025;
-
-      const x1 = 50 + mouseX * 10;
-      const y1 = 50 + mouseY * 10 + scrollEffect;
-
-      const x2 = 50 + mouseX * 22;
-      const y2 = 50 + mouseY * 22 + scrollEffect * 1.4;
-
-      photo.style.backgroundPosition = `
-        ${x1}% ${y1}%,
-        ${x2}% ${y2}%
-      `;
-
-      requestAnimationFrame(animate);
-    };
-
-    container.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("scroll", onScroll);
-
-    animate();
-
-    return () => {
-      container.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("scroll", onScroll);
-    };
-  }, []);
-
   return (
     <section id="about" className="py-24 md:py-32 border-t border-border/50">
       <div className="container-narrow">
+        {/* Section Header */}
         <header className="mb-16 md:mb-24">
           <h2 className="text-4xl md:text-5xl font-light text-foreground tracking-tight">
             About
@@ -61,34 +10,82 @@ const AboutSection = () => {
         </header>
 
         <div className="grid lg:grid-cols-5 gap-12 lg:gap-16">
-          {/* PHOTO */}
+          {/* Profile Photo */}
           <div className="lg:col-span-2">
-            <div
-              ref={containerRef}
-              className="aspect-[3/4] rounded-sm overflow-hidden bg-surface-elevated"
-            >
-              <div
-                ref={photoRef}
-                className="depth-photo w-full h-full"
-              />
+            <div className="aspect-[3/4] bg-surface-elevated rounded-sm overflow-hidden">
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="text-center space-y-2">
+                  <div className="w-20 h-20 mx-auto rounded-full bg-muted/50 flex items-center justify-center">
+                    <span className="text-2xl text-muted-foreground/50">FK</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground/40 tracking-wider uppercase">
+                    Portrait
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* TEXT */}
+          {/* Bio Content */}
           <div className="lg:col-span-3 space-y-8">
             <p className="text-lg md:text-xl text-secondary-foreground leading-relaxed">
-              Fırat Kesen is an industrial designer educated at Middle East Technical
-              University (METU). His design practice focuses on product, system, and
-              spatial design, combining conceptual thinking with technical awareness.
+              Fırat Kesen is an industrial designer educated at Middle East Technical 
+              University (METU). His design practice focuses on product, system, and 
+              spatial design, combining conceptual thinking with technical awareness. 
+              His project experience spans transportation design, medical products, 
+              urban spaces, and consumer-oriented solutions.
             </p>
 
             <p className="text-secondary-foreground leading-relaxed">
-              He has worked across manufacturing, design studios, and international
-              environments, developing solutions that balance concept, engineering,
-              and real-world constraints.
+              Throughout his education and professional experience, he worked in 
+              production-oriented environments ranging from manufacturing facilities 
+              and energy companies to a design studio, gaining hands-on experience 
+              with real-world constraints, workflows, and interdisciplinary collaboration. 
+              His recent international work experience in the United States further 
+              strengthened his adaptability, communication skills, and global design 
+              perspective.
             </p>
 
+            {/* Divider */}
             <div className="section-divider my-8" />
+
+            {/* Skills / Focus Areas */}
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-sm text-muted-foreground tracking-wider uppercase mb-3">
+                  Focus Areas
+                </h3>
+                <ul className="space-y-2 text-secondary-foreground">
+                  <li>Product Design</li>
+                  <li>System Design</li>
+                  <li>Spatial Design</li>
+                  <li>Transportation</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-sm text-muted-foreground tracking-wider uppercase mb-3">
+                  Experience
+                </h3>
+                <ul className="space-y-2 text-secondary-foreground">
+                  <li>Manufacturing</li>
+                  <li>Design Studio</li>
+                  <li>Energy Sector</li>
+                  <li>International</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Education */}
+            <div className="pt-4">
+              <h3 className="text-sm text-muted-foreground tracking-wider uppercase mb-3">
+                Education
+              </h3>
+              <p className="text-secondary-foreground">
+                Middle East Technical University (METU)<br />
+                <span className="text-muted-foreground">Industrial Design</span>
+              </p>
+            </div>
           </div>
         </div>
       </div>
