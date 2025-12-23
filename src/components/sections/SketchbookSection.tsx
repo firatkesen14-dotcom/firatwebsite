@@ -1,9 +1,11 @@
 import { useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const sketchPages = Array.from({ length: 10 }, (_, i) => ({
+// 30 sayfa için görsel dizisi
+const sketchPages = Array.from({ length: 30 }, (_, i) => ({
   id: i + 1,
   label: `Sketch ${i + 1}`,
+  image: `/sketches/sketch${i + 1}.jpg`,
 }));
 
 const SketchbookSection = () => {
@@ -11,24 +13,28 @@ const SketchbookSection = () => {
   const [isFlipping, setIsFlipping] = useState(false);
   const [flipDirection, setFlipDirection] = useState<"left" | "right" | null>(null);
 
-  const goToPage = useCallback((direction: "left" | "right") => {
-    if (isFlipping) return;
-    
-    const newPage = direction === "right" 
-      ? Math.min(currentPage + 1, sketchPages.length - 1)
-      : Math.max(currentPage - 1, 0);
-    
-    if (newPage === currentPage) return;
+  const goToPage = useCallback(
+    (direction: "left" | "right") => {
+      if (isFlipping) return;
 
-    setFlipDirection(direction);
-    setIsFlipping(true);
+      const newPage =
+        direction === "right"
+          ? Math.min(currentPage + 1, sketchPages.length - 1)
+          : Math.max(currentPage - 1, 0);
 
-    setTimeout(() => {
-      setCurrentPage(newPage);
-      setIsFlipping(false);
-      setFlipDirection(null);
-    }, 500);
-  }, [currentPage, isFlipping]);
+      if (newPage === currentPage) return;
+
+      setFlipDirection(direction);
+      setIsFlipping(true);
+
+      setTimeout(() => {
+        setCurrentPage(newPage);
+        setIsFlipping(false);
+        setFlipDirection(null);
+      }, 500);
+    },
+    [currentPage, isFlipping]
+  );
 
   const handlePrevious = () => goToPage("left");
   const handleNext = () => goToPage("right");
@@ -49,9 +55,9 @@ const SketchbookSection = () => {
         {/* Sketchbook Container */}
         <div className="relative max-w-3xl mx-auto">
           {/* Book - A3 proportions (1:1.414) */}
-          <div 
+          <div
             className="relative mx-auto"
-            style={{ 
+            style={{
               perspective: "1500px",
               aspectRatio: "1 / 1.414",
               maxHeight: "70vh",
@@ -60,20 +66,26 @@ const SketchbookSection = () => {
             {/* Book Pages */}
             <div className="relative w-full h-full">
               {/* Current Page */}
-              <div 
+              <div
                 className={`absolute inset-0 rounded-sm shadow-2xl overflow-hidden transition-transform duration-500 ease-in-out ${
-                  isFlipping && flipDirection === "right" 
-                    ? "animate-flip-right" 
+                  isFlipping && flipDirection === "right"
+                    ? "animate-flip-right"
                     : isFlipping && flipDirection === "left"
                     ? "animate-flip-left"
                     : ""
                 }`}
                 style={{
-                  background: "linear-gradient(135deg, hsl(40 30% 95%) 0%, hsl(40 25% 90%) 100%)",
                   transformStyle: "preserve-3d",
                 }}
               >
-                {/* Page Content */}
+                {/* Page Image */}
+                <img
+                  src={sketchPages[currentPage].image}
+                  alt={sketchPages[currentPage].label}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+
+                {/* Page Overlay */}
                 <div className="absolute inset-0 flex items-center justify-center p-8">
                   <div className="text-center space-y-4">
                     <span className="text-6xl md:text-8xl font-light text-muted-foreground/30">
@@ -85,7 +97,7 @@ const SketchbookSection = () => {
                   </div>
                 </div>
 
-                {/* Page Edge Effect */}
+                {/* Page Edge Effects */}
                 <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-black/10 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-t from-black/5 to-transparent" />
               </div>
@@ -130,8 +142,8 @@ const SketchbookSection = () => {
                   else if (index < currentPage) goToPage("left");
                 }}
                 className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  index === currentPage 
-                    ? "bg-foreground w-6" 
+                  index === currentPage
+                    ? "bg-foreground w-6"
                     : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
                 }`}
                 aria-label={`Go to page ${index + 1}`}
