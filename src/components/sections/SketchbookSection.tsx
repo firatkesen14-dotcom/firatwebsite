@@ -30,7 +30,7 @@ const SketchbookSection = () => {
         setCurrentPage(newPage);
         setIsFlipping(false);
         setFlipDirection(null);
-      }, 700); // Flip süresi biraz uzun, doğal his için
+      }, 700);
     },
     [currentPage, isFlipping]
   );
@@ -77,11 +77,11 @@ const SketchbookSection = () => {
                 <img
                   src={sketchPages[currentPage].src}
                   alt={sketchPages[currentPage].label}
-                  className={`absolute inset-0 w-full h-full object-contain rounded-sm shadow-2xl transition-transform duration-700 ease-in-out transform origin-left ${
+                  className={`absolute inset-0 w-full h-full object-contain rounded-sm shadow-2xl transform transition-transform duration-700 ${
                     isFlipping && flipDirection === "right"
-                      ? "rotateY-180"
+                      ? "animate-flip-right-elastic"
                       : isFlipping && flipDirection === "left"
-                      ? "-rotateY-180"
+                      ? "animate-flip-left-elastic"
                       : "rotateY-0"
                   }`}
                   style={{ backfaceVisibility: "hidden" }}
@@ -115,8 +115,34 @@ const SketchbookSection = () => {
 
       <style>{`
         .rotateY-0 { transform: rotateY(0deg); }
-        .rotateY-180 { transform: rotateY(-180deg); }
-        .-rotateY-180 { transform: rotateY(180deg); }
+
+        /* Elastic flip right */
+        .animate-flip-right-elastic {
+          animation: flipRightElastic 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+          transform-origin: left center;
+        }
+
+        /* Elastic flip left */
+        .animate-flip-left-elastic {
+          animation: flipLeftElastic 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+          transform-origin: right center;
+        }
+
+        @keyframes flipRightElastic {
+          0% { transform: rotateY(0deg) scaleX(1); }
+          25% { transform: rotateY(-45deg) scaleX(1.05) skewY(1deg); }
+          50% { transform: rotateY(-90deg) scaleX(1.1) skewY(2deg); }
+          75% { transform: rotateY(-135deg) scaleX(1.05) skewY(1deg); }
+          100% { transform: rotateY(-180deg) scaleX(1) skewY(0deg); }
+        }
+
+        @keyframes flipLeftElastic {
+          0% { transform: rotateY(0deg) scaleX(1); }
+          25% { transform: rotateY(45deg) scaleX(1.05) skewY(-1deg); }
+          50% { transform: rotateY(90deg) scaleX(1.1) skewY(-2deg); }
+          75% { transform: rotateY(135deg) scaleX(1.05) skewY(-1deg); }
+          100% { transform: rotateY(180deg) scaleX(1) skewY(0deg); }
+        }
       `}</style>
     </section>
   );
