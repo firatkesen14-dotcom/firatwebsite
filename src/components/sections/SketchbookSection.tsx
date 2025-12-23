@@ -30,7 +30,7 @@ const SketchbookSection = () => {
         setCurrentPage(newPage);
         setIsFlipping(false);
         setFlipDirection(null);
-      }, 700);
+      }, 800);
     },
     [currentPage, isFlipping]
   );
@@ -62,22 +62,10 @@ const SketchbookSection = () => {
             <div className="relative w-full h-full">
               {/* Current Page */}
               <div className="relative w-full h-full">
-                {/* Previous page (back face) */}
-                {flipDirection && currentPage > 0 && (
-                  <img
-                    src={sketchPages[flipDirection === "right" ? currentPage : currentPage - 1].src}
-                    alt="Back page"
-                    className={`absolute inset-0 w-full h-full object-contain rounded-sm shadow-2xl transition-opacity duration-700 ease-in-out ${
-                      flipDirection === "right" ? "opacity-0" : "opacity-100"
-                    }`}
-                  />
-                )}
-
-                {/* Active Page */}
                 <img
                   src={sketchPages[currentPage].src}
                   alt={sketchPages[currentPage].label}
-                  className={`absolute inset-0 w-full h-full object-contain rounded-sm shadow-2xl transform transition-transform duration-700 ${
+                  className={`absolute inset-0 w-full h-full object-contain rounded-sm shadow-2xl transform transition-transform duration-800 ${
                     isFlipping && flipDirection === "right"
                       ? "animate-flip-right-elastic"
                       : isFlipping && flipDirection === "left"
@@ -116,31 +104,29 @@ const SketchbookSection = () => {
       <style>{`
         .rotateY-0 { transform: rotateY(0deg); }
 
-        /* Elastic flip right */
+        /* Smooth elastic flip right */
         .animate-flip-right-elastic {
-          animation: flipRightElastic 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+          animation: flipRightElastic 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
           transform-origin: left center;
         }
 
-        /* Elastic flip left */
+        /* Smooth elastic flip left */
         .animate-flip-left-elastic {
-          animation: flipLeftElastic 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+          animation: flipLeftElastic 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
           transform-origin: right center;
         }
 
         @keyframes flipRightElastic {
           0% { transform: rotateY(0deg) scaleX(1); }
-          25% { transform: rotateY(-45deg) scaleX(1.05) skewY(1deg); }
-          50% { transform: rotateY(-90deg) scaleX(1.1) skewY(2deg); }
-          75% { transform: rotateY(-135deg) scaleX(1.05) skewY(1deg); }
+          30% { transform: rotateY(-45deg) scaleX(1.02) skewY(0.3deg); }
+          60% { transform: rotateY(-90deg) scaleX(1.05) skewY(0.5deg); }
           100% { transform: rotateY(-180deg) scaleX(1) skewY(0deg); }
         }
 
         @keyframes flipLeftElastic {
           0% { transform: rotateY(0deg) scaleX(1); }
-          25% { transform: rotateY(45deg) scaleX(1.05) skewY(-1deg); }
-          50% { transform: rotateY(90deg) scaleX(1.1) skewY(-2deg); }
-          75% { transform: rotateY(135deg) scaleX(1.05) skewY(-1deg); }
+          30% { transform: rotateY(45deg) scaleX(1.02) skewY(-0.3deg); }
+          60% { transform: rotateY(90deg) scaleX(1.05) skewY(-0.5deg); }
           100% { transform: rotateY(180deg) scaleX(1) skewY(0deg); }
         }
       `}</style>
