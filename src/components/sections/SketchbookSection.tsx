@@ -38,6 +38,14 @@ const SketchbookSection = () => {
   const handlePrevious = () => goToPage("left");
   const handleNext = () => goToPage("right");
 
+  const getNextPageSrc = () => {
+    if (flipDirection === "right" && currentPage < sketchPages.length - 1)
+      return sketchPages[currentPage + 1].src;
+    if (flipDirection === "left" && currentPage > 0)
+      return sketchPages[currentPage - 1].src;
+    return null;
+  };
+
   return (
     <section id="sketchbook" className="py-24 md:py-32 border-t border-border/50">
       <div className="container-wide">
@@ -62,6 +70,15 @@ const SketchbookSection = () => {
             <div className="relative w-full h-full">
               {/* Current Page */}
               <div className="relative w-full h-full">
+                {getNextPageSrc() && (
+                  <img
+                    src={getNextPageSrc()!}
+                    alt="Next page"
+                    className="absolute inset-0 w-full h-full object-contain rounded-sm shadow-2xl opacity-30"
+                    style={{ backfaceVisibility: "hidden", transform: "rotateY(0deg)" }}
+                  />
+                )}
+
                 <img
                   src={sketchPages[currentPage].src}
                   alt={sketchPages[currentPage].label}
