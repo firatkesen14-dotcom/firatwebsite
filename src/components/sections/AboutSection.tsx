@@ -1,3 +1,5 @@
+import DepthParallaxImage from '@/components/DepthParallaxImage';
+
 const AboutSection = () => {
   return (
     <section id="about" className="py-24 md:py-32 border-t border-border/50">
@@ -10,19 +12,13 @@ const AboutSection = () => {
         </header>
 
         <div className="grid lg:grid-cols-5 gap-12 lg:gap-16">
-          {/* Profile Photo */}
+          {/* Profile Photo with 3D Depth Effect */}
           <div className="lg:col-span-2">
             <div className="aspect-[3/4] bg-surface-elevated rounded-sm overflow-hidden">
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="text-center space-y-2">
-                  <div className="w-20 h-20 mx-auto rounded-full bg-muted/50 flex items-center justify-center">
-                    <span className="text-2xl text-muted-foreground/50">FK</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground/40 tracking-wider uppercase">
-                    Portrait
-                  </p>
-                </div>
-              </div>
+              <DepthParallaxImage
+                imageUrl="/profile.png"
+                depthUrl="/profile-depth.png"
+              />
             </div>
           </div>
 
@@ -62,7 +58,6 @@ const AboutSection = () => {
                   <li>Transportation</li>
                 </ul>
               </div>
-
               <div>
                 <h3 className="text-sm text-muted-foreground tracking-wider uppercase mb-3">
                   Experience
