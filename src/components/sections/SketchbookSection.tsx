@@ -3,8 +3,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const sketchPages = Array.from({ length: 30 }, (_, i) => ({
   id: i + 1,
-  src: `/sketches/sketch${i + 1}.JPG`, // Büyük JPG uzantısı
   label: `Sketch ${i + 1}`,
+  src: `/sketches/sketch${i + 1}.JPG`
 }));
 
 const SketchbookSection = () => {
@@ -57,12 +57,12 @@ const SketchbookSection = () => {
             className="relative mx-auto"
             style={{
               perspective: "1500px",
-              aspectRatio: "1 / 1.414", // A3 oranı
-              maxHeight: "70vh",
+              aspectRatio: "1 / 1.414",
+              maxHeight: "70vh"
             }}
           >
+            {/* Book Pages */}
             <div className="relative w-full h-full">
-              {/* Current Page */}
               <div
                 className={`absolute inset-0 rounded-sm shadow-2xl overflow-hidden transition-transform duration-500 ease-in-out ${
                   isFlipping && flipDirection === "right"
@@ -72,7 +72,7 @@ const SketchbookSection = () => {
                     : ""
                 }`}
                 style={{
-                  transformStyle: "preserve-3d",
+                  transformStyle: "preserve-3d"
                 }}
               >
                 {/* Page Image */}
@@ -80,10 +80,9 @@ const SketchbookSection = () => {
                   src={sketchPages[currentPage].src}
                   alt={sketchPages[currentPage].label}
                   className="w-full h-full object-contain"
-                  draggable={false}
                 />
 
-                {/* Page Edge Effect */}
+                {/* Page Edge Effects */}
                 <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-black/10 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-t from-black/5 to-transparent" />
               </div>
@@ -116,7 +115,6 @@ const SketchbookSection = () => {
         </div>
       </div>
 
-      {/* Animations */}
       <style>{`
         @keyframes flipRight {
           0% { transform: rotateY(0deg); }
@@ -128,11 +126,11 @@ const SketchbookSection = () => {
         }
         .animate-flip-right {
           animation: flipRight 0.5s ease-in-out forwards;
-          transform-origin: left center;
+          transform-origin: 20% center; /* sol tarafa doğru dönecek */
         }
         .animate-flip-left {
           animation: flipLeft 0.5s ease-in-out forwards;
-          transform-origin: right center;
+          transform-origin: 80% center; /* sağ tarafa doğru dönecek */
         }
       `}</style>
     </section>
