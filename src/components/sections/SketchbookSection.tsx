@@ -1,11 +1,10 @@
 import { useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-// 30 sayfalık sketch listesi
 const sketchPages = Array.from({ length: 30 }, (_, i) => ({
   id: i + 1,
+  src: `/sketches/sketch${i + 1}.JPG`, // Büyük JPG uzantısı
   label: `Sketch ${i + 1}`,
-  src: `/sketches/sketch${i + 1}.jpg`, // public/sketches/sketch1.jpg → sketch30.jpg
 }));
 
 const SketchbookSection = () => {
@@ -54,16 +53,14 @@ const SketchbookSection = () => {
 
         {/* Sketchbook Container */}
         <div className="relative max-w-3xl mx-auto">
-          {/* Book - A3 proportions */}
           <div
             className="relative mx-auto"
             style={{
               perspective: "1500px",
-              aspectRatio: "1 / 1.414",
+              aspectRatio: "1 / 1.414", // A3 oranı
               maxHeight: "70vh",
             }}
           >
-            {/* Book Pages */}
             <div className="relative w-full h-full">
               {/* Current Page */}
               <div
@@ -76,14 +73,14 @@ const SketchbookSection = () => {
                 }`}
                 style={{
                   transformStyle: "preserve-3d",
-                  background: "linear-gradient(135deg, hsl(40 30% 95%) 0%, hsl(40 25% 90%) 100%)",
                 }}
               >
-                {/* Page Content - Sketch Görsel */}
+                {/* Page Image */}
                 <img
                   src={sketchPages[currentPage].src}
                   alt={sketchPages[currentPage].label}
-                  className="absolute inset-0 w-full h-full object-contain"
+                  className="w-full h-full object-contain"
+                  draggable={false}
                 />
 
                 {/* Page Edge Effect */}
@@ -119,7 +116,7 @@ const SketchbookSection = () => {
         </div>
       </div>
 
-      {/* Flip Animations */}
+      {/* Animations */}
       <style>{`
         @keyframes flipRight {
           0% { transform: rotateY(0deg); }
