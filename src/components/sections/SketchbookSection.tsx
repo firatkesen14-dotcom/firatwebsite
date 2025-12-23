@@ -1,11 +1,9 @@
 import { useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-// 30 sayfa için görsel dizisi
 const sketchPages = Array.from({ length: 30 }, (_, i) => ({
   id: i + 1,
-  label: `Sketch ${i + 1}`,
-  image: `/sketches/sketch${i + 1}.jpg`,
+  src: `/sketch${i + 1}.jpg`,
 }));
 
 const SketchbookSection = () => {
@@ -78,26 +76,13 @@ const SketchbookSection = () => {
                   transformStyle: "preserve-3d",
                 }}
               >
-                {/* Page Image */}
                 <img
-                  src={sketchPages[currentPage].image}
-                  alt={sketchPages[currentPage].label}
-                  className="absolute inset-0 w-full h-full object-cover"
+                  src={sketchPages[currentPage].src}
+                  alt={`Sketch ${currentPage + 1}`}
+                  className="w-full h-full object-cover"
                 />
 
-                {/* Page Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center p-8">
-                  <div className="text-center space-y-4">
-                    <span className="text-6xl md:text-8xl font-light text-muted-foreground/30">
-                      {String(currentPage + 1).padStart(2, "0")}
-                    </span>
-                    <p className="text-sm text-muted-foreground/50 tracking-wider uppercase">
-                      {sketchPages[currentPage].label}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Page Edge Effects */}
+                {/* Page Edge Effect */}
                 <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-black/10 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-t from-black/5 to-transparent" />
               </div>
@@ -130,25 +115,6 @@ const SketchbookSection = () => {
             >
               <ChevronRight size={24} />
             </button>
-          </div>
-
-          {/* Page Indicators */}
-          <div className="flex justify-center gap-2 mt-6">
-            {sketchPages.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  if (index > currentPage) goToPage("right");
-                  else if (index < currentPage) goToPage("left");
-                }}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  index === currentPage
-                    ? "bg-foreground w-6"
-                    : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-                }`}
-                aria-label={`Go to page ${index + 1}`}
-              />
-            ))}
           </div>
         </div>
       </div>
