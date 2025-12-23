@@ -68,30 +68,34 @@ const SketchbookSection = () => {
             }}
           >
             <div className="relative w-full h-full">
-              {/* Current Page */}
-              <div className="relative w-full h-full">
-                {getNextPageSrc() && (
-                  <img
-                    src={getNextPageSrc()!}
-                    alt="Next page"
-                    className="absolute inset-0 w-full h-full object-contain rounded-sm shadow-2xl opacity-30"
-                    style={{ backfaceVisibility: "hidden", transform: "rotateY(0deg)" }}
-                  />
-                )}
-
+              {/* Next Page for smooth blur & opacity */}
+              {getNextPageSrc() && (
                 <img
-                  src={sketchPages[currentPage].src}
-                  alt={sketchPages[currentPage].label}
-                  className={`absolute inset-0 w-full h-full object-contain rounded-sm shadow-2xl transform transition-transform duration-800 ${
-                    isFlipping && flipDirection === "right"
-                      ? "animate-flip-right-elastic"
-                      : isFlipping && flipDirection === "left"
-                      ? "animate-flip-left-elastic"
-                      : "rotateY-0"
-                  }`}
-                  style={{ backfaceVisibility: "hidden" }}
+                  src={getNextPageSrc()!}
+                  alt="Next page"
+                  className={`absolute inset-0 w-full h-full object-contain rounded-sm shadow-2xl transition-all duration-800`}
+                  style={{
+                    backfaceVisibility: "hidden",
+                    transform: "rotateY(0deg)",
+                    filter: isFlipping ? "blur(6px)" : "blur(0px)",
+                    opacity: isFlipping ? 0.3 : 1,
+                  }}
                 />
-              </div>
+              )}
+
+              {/* Current Page */}
+              <img
+                src={sketchPages[currentPage].src}
+                alt={sketchPages[currentPage].label}
+                className={`absolute inset-0 w-full h-full object-contain rounded-sm shadow-2xl transform transition-transform duration-800 ${
+                  isFlipping && flipDirection === "right"
+                    ? "animate-flip-right-elastic"
+                    : isFlipping && flipDirection === "left"
+                    ? "animate-flip-left-elastic"
+                    : "rotateY-0"
+                }`}
+                style={{ backfaceVisibility: "hidden" }}
+              />
             </div>
           </div>
 
