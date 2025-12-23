@@ -54,7 +54,7 @@ const SketchbookSection = () => {
             Sketchbook
           </h2>
           <p className="text-muted-foreground">
-            Conceptual explorations and design studies
+            A collection of my sketches and creative experiments
           </p>
         </header>
 
