@@ -1,11 +1,11 @@
 import { useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-// Sketch sayfaları: 30 görsel, public/sketches klasöründe
+// 30 sayfalık sketch listesi
 const sketchPages = Array.from({ length: 30 }, (_, i) => ({
   id: i + 1,
   label: `Sketch ${i + 1}`,
-  src: `/sketches/sketch${i + 1}.jpg`, // public/sketches klasörü
+  src: `/sketches/sketch${i + 1}.jpg`, // public/sketches/sketch1.jpg → sketch30.jpg
 }));
 
 const SketchbookSection = () => {
