@@ -1,41 +1,74 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 
 const AboutSection = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
-  const depthRef = useRef<HTMLImageElement>(null);
+  const imageRef = useRef(null);
+  const containerRef = useRef(null);
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!containerRef.current || !imageRef.current || !depthRef.current) return;
+  let mouseRotateX = 0;
+  let mouseRotateY = 0;
+
+  const applyTransform = () => {
+    if (!imageRef.current || !containerRef.current) return;
 
     const rect = containerRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    const windowHeight = window.innerHeight;
 
-    // ÇOK HAFİF değerler (premium look)
-    const intensity = 8;
+    // Scroll progress (0–1)
+    const scrollProgress = Math.min(
+      Math.max(1 - rect.top / windowHeight, 0),
+      1
+    );
+
+    const scrollRotateX = scrollProgress * 4;
+    const scrollTranslateY = scrollProgress * -18;
+    const scrollTranslateZ = scrollProgress * 22;
 
     imageRef.current.style.transform = `
-      translate(${x * intensity}px, ${y * intensity}px)
-      scale(1.05)
-    `;
-
-    depthRef.current.style.transform = `
-      translate(${x * intensity * 1.5}px, ${y * intensity * 1.5}px)
-      scale(1.08)
+      perspective(1100px)
+      rotateZ(4deg)
+      rotateX(${mouseRotateX + scrollRotateX}deg)
+      rotateY(${mouseRotateY}deg)
+      translateY(${scrollTranslateY}px)
+      translateZ(${scrollTranslateZ}px)
     `;
   };
 
-  const resetTransform = () => {
-    if (!imageRef.current || !depthRef.current) return;
+  const handleMouseMove = (e) => {
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
 
-    imageRef.current.style.transform = "translate(0,0) scale(1.05)";
-    depthRef.current.style.transform = "translate(0,0) scale(1.08)";
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    mouseRotateX = ((y - centerY) / centerY) * 6;
+    mouseRotateY = ((x - centerX) / centerX) * -6;
+
+    applyTransform();
   };
+
+  const handleMouseLeave = () => {
+    mouseRotateX = 0;
+    mouseRotateY = 0;
+    applyTransform();
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", applyTransform);
+    applyTransform();
+
+    return () => {
+      window.removeEventListener("scroll", applyTransform);
+    };
+  }, []);
 
   return (
-    <section id="about" className="py-24 md:py-32 border-t border-border/50">
+    <section
+      id="about"
+      className="py-24 md:py-32 border-t border-border/50"
+    >
       <div className="container-narrow">
+        {/* Section Header */}
         <header className="mb-16 md:mb-24">
           <h2 className="text-4xl md:text-5xl font-light text-foreground tracking-tight">
             About
@@ -43,33 +76,31 @@ const AboutSection = () => {
         </header>
 
         <div className="grid lg:grid-cols-5 gap-12 lg:gap-16">
-          {/* PROFILE WITH DEPTH */}
+          {/* Profile Image */}
           <div className="lg:col-span-2">
             <div
               ref={containerRef}
               onMouseMove={handleMouseMove}
-              onMouseLeave={resetTransform}
-              className="relative aspect-[3/4] overflow-hidden rounded-sm bg-surface-elevated cursor-default"
+              onMouseLeave={handleMouseLeave}
+              className="aspect-[3/4] bg-surface-elevated rounded-sm overflow-hidden"
+              style={{
+                perspective: "1100px",
+              }}
             >
-              {/* Depth map */}
-              <img
-                ref={depthRef}
-                src="/profile-depth.png"
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-multiply transition-transform duration-300 ease-out"
-              />
-
-              {/* Main image */}
               <img
                 ref={imageRef}
                 src="/profile.png"
                 alt="Fırat Kesen portrait"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 ease-out"
+                className="w-full h-full object-cover"
+                style={{
+                  transition: "transform 0.25s ease-out",
+                  willChange: "transform",
+                }}
               />
             </div>
           </div>
 
-          {/* BIO */}
+          {/* Bio Content */}
           <div className="lg:col-span-3 space-y-8">
             <p className="text-lg md:text-xl text-secondary-foreground leading-relaxed">
               Fırat Kesen is an industrial designer educated at Middle East Technical
@@ -83,14 +114,15 @@ const AboutSection = () => {
               Throughout his education and professional experience, he worked in
               production-oriented environments ranging from manufacturing facilities
               and energy companies to a design studio, gaining hands-on experience
-              with real-world constraints, workflows, and interdisciplinary collaboration.
-              His recent international work experience in the United States further
-              strengthened his adaptability, communication skills, and global design
-              perspective.
+              with real-world constraints, workflows, and interdisciplinary
+              collaboration. His recent international work experience in the United
+              States further strengthened his adaptability, communication skills, and
+              global design perspective.
             </p>
 
             <div className="section-divider my-8" />
 
+            {/* Focus Areas & Experience */}
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <h3 className="text-sm text-muted-foreground tracking-wider uppercase mb-3">
@@ -117,6 +149,7 @@ const AboutSection = () => {
               </div>
             </div>
 
+            {/* Education */}
             <div className="pt-4">
               <h3 className="text-sm text-muted-foreground tracking-wider uppercase mb-3">
                 Education
