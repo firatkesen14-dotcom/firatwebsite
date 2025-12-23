@@ -1,100 +1,149 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 const AboutSection = () => {
-  const sectionRef = useRef<HTMLElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
-  const [hovered, setHovered] = useState(false);
-
-  // 🔹 Scroll her zaman aktif (mouse tekeri dahil)
   useEffect(() => {
-    const onScroll = () => {
-      if (!sectionRef.current) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-      const rect = sectionRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-      // section ekrana girdikçe 0 → 1
-      const progress =
-        1 - Math.min(Math.max(rect.top / windowHeight, 0), 1);
+    const img = new Image();
+    const depth = new Image();
 
-      setScrollProgress(progress);
+    img.src = "/profile.png";
+    depth.src = "/profile-depth.png";
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let scrollY = 0;
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
+    window.addEventListener("resize", resize);
+    resize();
 
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  // 🔹 Mouse hareketi (sadece hover)
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!imageRef.current) return;
-    const rect = imageRef.current.getBoundingClientRect();
-
-    setMouse({
-      x: (e.clientX - rect.left) / rect.width - 0.5,
-      y: (e.clientY - rect.top) / rect.height - 0.5,
+    window.addEventListener("mousemove", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = (e.clientX - rect.left) / rect.width - 0.5;
+      mouseY = (e.clientY - rect.top) / rect.height - 0.5;
     });
-  };
+
+    window.addEventListener("scroll", () => {
+      scrollY = window.scrollY * 0.0006;
+    });
+
+    Promise.all([
+      new Promise((res) => (img.onload = res)),
+      new Promise((res) => (depth.onload = res)),
+    ]).then(() => {
+      const render = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const strength = 40;
+        const dx = (mouseX + scrollY) * strength;
+        const dy = (mouseY + scrollY) * strength;
+
+        ctx.drawImage(
+          img,
+          dx,
+          dy,
+          canvas.width - dx * 2,
+          canvas.height - dy * 2
+        );
+
+        ctx.globalCompositeOperation = "destination-in";
+        ctx.drawImage(depth, 0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = "source-over";
+
+        requestAnimationFrame(render);
+      };
+
+      render();
+    });
+
+    return () => {
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
 
   return (
     <section
-      ref={sectionRef}
       id="about"
-      className="py-32 border-t border-border/50"
+      className="py-24 md:py-32 border-t border-border/50"
     >
-      <div className="container-narrow grid lg:grid-cols-5 gap-16">
+      <div className="container-narrow">
+        <header className="mb-16">
+          <h2 className="text-4xl md:text-5xl font-light tracking-tight">
+            About
+          </h2>
+        </header>
 
-        {/* IMAGE */}
-        <div
-          className="lg:col-span-2 relative aspect-[3/4] overflow-hidden"
-          onMouseMove={handleMouseMove}
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-        >
-          {/* Depth map – GÖRÜNMEZ */}
-          <img
-            src="/profile-depth.png"
-            alt=""
-            aria-hidden
-            className="absolute inset-0 w-full h-full object-cover opacity-0 pointer-events-none"
-          />
+        <div className="grid lg:grid-cols-5 gap-12 lg:gap-16 items-start">
+          {/* Portrait with depth */}
+          <div className="lg:col-span-2">
+            <div className="aspect-[3/4] rounded-sm overflow-hidden bg-black">
+              <canvas
+                ref={canvasRef}
+                className="w-full h-full block"
+              />
+            </div>
+          </div>
 
-          {/* MAIN IMAGE */}
-          <img
-            ref={imageRef}
-            src="/profile.jpg"
-            alt="Portrait"
-            className="w-full h-full object-cover will-change-transform"
-            style={{
-              transform: `
-                translateX(${(hovered ? mouse.x : 0) * 20}px)
-                translateY(${(hovered ? mouse.y : 0) * 20 + scrollProgress * 30}px)
-                scale(${1 + scrollProgress * 0.03})
-              `,
-              transition: hovered
-                ? "transform 0.12s ease-out"
-                : "transform 0.4s ease-out",
-            }}
-          />
-        </div>
+          {/* Text */}
+          <div className="lg:col-span-3 space-y-8">
+            <p className="text-lg md:text-xl leading-relaxed">
+              Fırat Kesen is an industrial designer educated at Middle East
+              Technical University (METU). His work focuses on product, system,
+              and spatial design, balancing conceptual depth with technical
+              clarity.
+            </p>
 
-        {/* TEXT */}
-        <div className="lg:col-span-3 space-y-8">
-          <p className="text-lg md:text-xl leading-relaxed">
-            Fırat Kesen is an industrial designer educated at Middle East Technical
-            University (METU). His design practice focuses on product, system, and
-            spatial design, combining conceptual thinking with technical awareness.
-          </p>
+            <p className="leading-relaxed">
+              His experience spans manufacturing, energy systems, and design
+              studios, shaped further by international work experience in the
+              United States.
+            </p>
 
-          <p className="leading-relaxed">
-            His experience spans transportation, medical products, urban spaces,
-            and consumer-oriented solutions, shaped by production-oriented
-            environments and international collaboration.
-          </p>
+            <div className="grid grid-cols-2 gap-6 pt-6">
+              <div>
+                <h3 className="text-sm uppercase tracking-wider opacity-60 mb-2">
+                  Focus
+                </h3>
+                <ul className="space-y-1">
+                  <li>Product Design</li>
+                  <li>System Design</li>
+                  <li>Spatial Design</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-sm uppercase tracking-wider opacity-60 mb-2">
+                  Experience
+                </h3>
+                <ul className="space-y-1">
+                  <li>Manufacturing</li>
+                  <li>Design Studio</li>
+                  <li>International</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="pt-4">
+              <h3 className="text-sm uppercase tracking-wider opacity-60 mb-2">
+                Education
+              </h3>
+              <p>
+                Middle East Technical University<br />
+                <span className="opacity-60">Industrial Design</span>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
