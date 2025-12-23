@@ -1,48 +1,51 @@
 import { useEffect, useRef } from "react";
 
 const AboutSection = () => {
-  const imageRef = useRef<HTMLImageElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const mouseX = useRef(0);
   const mouseY = useRef(0);
-  const scrollOffset = useRef(0);
-  const isHovering = useRef(false);
+  const scrollY = useRef(0);
+  const hovering = useRef(false);
 
   useEffect(() => {
-    const img = imageRef.current;
-    if (!img) return;
+    const el = containerRef.current;
+    if (!el) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isHovering.current) return;
+    const onMouseMove = (e: MouseEvent) => {
+      if (!hovering.current) return;
 
-      const rect = img.getBoundingClientRect();
+      const rect = el.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
       const y = (e.clientY - rect.top) / rect.height - 0.5;
 
-      mouseX.current = x * 22;
-      mouseY.current = y * 22;
+      mouseX.current = x * 40;
+      mouseY.current = y * 40;
     };
 
-    const handleScroll = () => {
-      scrollOffset.current = window.scrollY * 0.03;
+    const onScroll = () => {
+      scrollY.current = window.scrollY * 0.08;
     };
 
     const animate = () => {
-      img.style.setProperty("--mx", `${mouseX.current}px`);
-      img.style.setProperty(
-        "--my",
-        `${mouseY.current + scrollOffset.current}px`
-      );
+      const x = mouseX.current;
+      const y = mouseY.current + scrollY.current;
+
+      el.style.backgroundPosition = `
+        calc(50% + ${x}px)
+        calc(50% + ${y}px)
+      `;
+
       requestAnimationFrame(animate);
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("scroll", onScroll);
     animate();
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("scroll", onScroll);
     };
   }, []);
 
@@ -52,9 +55,8 @@ const AboutSection = () => {
       className="py-24 md:py-32 border-t border-border/50"
     >
       <div className="container-narrow">
-        {/* Section Header */}
         <header className="mb-16 md:mb-24">
-          <h2 className="text-4xl md:text-5xl font-light text-foreground tracking-tight">
+          <h2 className="text-4xl md:text-5xl font-light tracking-tight">
             About
           </h2>
         </header>
@@ -64,86 +66,34 @@ const AboutSection = () => {
           <div className="lg:col-span-2">
             <div
               className="aspect-[3/4] rounded-sm overflow-hidden"
-              style={{ perspective: "1200px" }}
-              onMouseEnter={() => (isHovering.current = true)}
+              onMouseEnter={() => (hovering.current = true)}
               onMouseLeave={() => {
-                isHovering.current = false;
+                hovering.current = false;
                 mouseX.current = 0;
                 mouseY.current = 0;
               }}
             >
-              <div className="depth-wrapper">
-                <img
-                  ref={imageRef}
-                  src="/profile.png"
-                  alt="Portrait of Fırat Kesen"
-                  className="depth-image"
-                />
-              </div>
+              <div
+                ref={containerRef}
+                className="w-full h-full depth-photo"
+              />
             </div>
           </div>
 
-          {/* Text Content */}
+          {/* Text */}
           <div className="lg:col-span-3 space-y-8">
-            <p className="text-lg md:text-xl text-secondary-foreground leading-relaxed">
+            <p className="text-lg md:text-xl leading-relaxed">
               Fırat Kesen is an industrial designer educated at Middle East
               Technical University (METU). His design practice focuses on product,
               system, and spatial design, combining conceptual thinking with
-              technical awareness. His project experience spans transportation
-              design, medical products, urban spaces, and consumer-oriented
-              solutions.
+              technical awareness.
             </p>
 
-            <p className="text-secondary-foreground leading-relaxed">
-              Throughout his education and professional experience, he worked in
-              production-oriented environments ranging from manufacturing
-              facilities and energy companies to a design studio, gaining
-              hands-on experience with real-world constraints, workflows, and
-              interdisciplinary collaboration. His recent international work
-              experience in the United States further strengthened his
-              adaptability, communication skills, and global design perspective.
+            <p className="leading-relaxed">
+              His project experience spans transportation design, medical
+              products, urban spaces, and consumer-oriented solutions, shaped by
+              production-oriented environments and international collaboration.
             </p>
-
-            <div className="section-divider my-8" />
-
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <h3 className="text-sm text-muted-foreground tracking-wider uppercase mb-3">
-                  Focus Areas
-                </h3>
-                <ul className="space-y-2 text-secondary-foreground">
-                  <li>Product Design</li>
-                  <li>System Design</li>
-                  <li>Spatial Design</li>
-                  <li>Transportation</li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="text-sm text-muted-foreground tracking-wider uppercase mb-3">
-                  Experience
-                </h3>
-                <ul className="space-y-2 text-secondary-foreground">
-                  <li>Manufacturing</li>
-                  <li>Design Studio</li>
-                  <li>Energy Sector</li>
-                  <li>International</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="pt-4">
-              <h3 className="text-sm text-muted-foreground tracking-wider uppercase mb-3">
-                Education
-              </h3>
-              <p className="text-secondary-foreground">
-                Middle East Technical University (METU)
-                <br />
-                <span className="text-muted-foreground">
-                  Industrial Design
-                </span>
-              </p>
-            </div>
           </div>
         </div>
       </div>
