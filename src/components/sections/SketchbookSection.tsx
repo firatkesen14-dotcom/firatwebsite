@@ -30,7 +30,7 @@ const SketchbookSection = () => {
         setCurrentPage(newPage);
         setIsFlipping(false);
         setFlipDirection(null);
-      }, 500);
+      }, 700); // Flip süresi biraz uzun, doğal his için
     },
     [currentPage, isFlipping]
   );
@@ -41,7 +41,6 @@ const SketchbookSection = () => {
   return (
     <section id="sketchbook" className="py-24 md:py-32 border-t border-border/50">
       <div className="container-wide">
-        {/* Section Header */}
         <header className="mb-12 text-center">
           <h2 className="text-4xl md:text-5xl font-light text-foreground tracking-tight mb-4">
             Sketchbook
@@ -51,44 +50,43 @@ const SketchbookSection = () => {
           </p>
         </header>
 
-        {/* Sketchbook Container */}
         <div className="relative max-w-3xl mx-auto">
           <div
             className="relative mx-auto"
             style={{
-              perspective: "1500px",
+              perspective: "2000px",
               aspectRatio: "1 / 1.414",
               maxHeight: "70vh"
             }}
           >
-            {/* Book Pages */}
             <div className="relative w-full h-full">
-              <div
-                className={`absolute inset-0 rounded-sm shadow-2xl overflow-hidden transition-transform duration-500 ease-in-out ${
-                  isFlipping && flipDirection === "right"
-                    ? "animate-flip-right"
-                    : isFlipping && flipDirection === "left"
-                    ? "animate-flip-left"
-                    : ""
-                }`}
-                style={{
-                  transformStyle: "preserve-3d"
-                }}
-              >
-                {/* Page Image */}
+              {/* Current Page */}
+              <div className="relative w-full h-full">
+                {/* Previous page (back face) */}
+                {flipDirection && currentPage > 0 && (
+                  <img
+                    src={sketchPages[flipDirection === "right" ? currentPage : currentPage - 1].src}
+                    alt="Back page"
+                    className={`absolute inset-0 w-full h-full object-contain rounded-sm shadow-2xl transition-opacity duration-700 ease-in-out ${
+                      flipDirection === "right" ? "opacity-0" : "opacity-100"
+                    }`}
+                  />
+                )}
+
+                {/* Active Page */}
                 <img
                   src={sketchPages[currentPage].src}
                   alt={sketchPages[currentPage].label}
-                  className="w-full h-full object-contain"
+                  className={`absolute inset-0 w-full h-full object-contain rounded-sm shadow-2xl transition-transform duration-700 ease-in-out transform origin-left ${
+                    isFlipping && flipDirection === "right"
+                      ? "rotateY-180"
+                      : isFlipping && flipDirection === "left"
+                      ? "-rotateY-180"
+                      : "rotateY-0"
+                  }`}
+                  style={{ backfaceVisibility: "hidden" }}
                 />
-
-                {/* Page Edge Effects */}
-                <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-black/10 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-t from-black/5 to-transparent" />
               </div>
-
-              {/* Book Spine Shadow */}
-              <div className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-r from-black/20 to-transparent rounded-l-sm" />
             </div>
           </div>
 
@@ -116,22 +114,9 @@ const SketchbookSection = () => {
       </div>
 
       <style>{`
-        @keyframes flipRight {
-          0% { transform: rotateY(0deg); }
-          100% { transform: rotateY(-180deg); }
-        }
-        @keyframes flipLeft {
-          0% { transform: rotateY(0deg); }
-          100% { transform: rotateY(180deg); }
-        }
-        .animate-flip-right {
-          animation: flipRight 0.5s ease-in-out forwards;
-          transform-origin: 20% center; /* sol tarafa doğru dönecek */
-        }
-        .animate-flip-left {
-          animation: flipLeft 0.5s ease-in-out forwards;
-          transform-origin: 80% center; /* sağ tarafa doğru dönecek */
-        }
+        .rotateY-0 { transform: rotateY(0deg); }
+        .rotateY-180 { transform: rotateY(-180deg); }
+        .-rotateY-180 { transform: rotateY(180deg); }
       `}</style>
     </section>
   );
