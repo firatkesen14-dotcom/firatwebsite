@@ -1,9 +1,11 @@
 import { useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+// Sketch sayfaları: 30 görsel, public/sketches klasöründe
 const sketchPages = Array.from({ length: 30 }, (_, i) => ({
   id: i + 1,
-  src: `/sketch${i + 1}.jpg`,
+  label: `Sketch ${i + 1}`,
+  src: `/sketches/sketch${i + 1}.jpg`, // public/sketches klasörü
 }));
 
 const SketchbookSection = () => {
@@ -52,7 +54,7 @@ const SketchbookSection = () => {
 
         {/* Sketchbook Container */}
         <div className="relative max-w-3xl mx-auto">
-          {/* Book - A3 proportions (1:1.414) */}
+          {/* Book - A3 proportions */}
           <div
             className="relative mx-auto"
             style={{
@@ -74,12 +76,14 @@ const SketchbookSection = () => {
                 }`}
                 style={{
                   transformStyle: "preserve-3d",
+                  background: "linear-gradient(135deg, hsl(40 30% 95%) 0%, hsl(40 25% 90%) 100%)",
                 }}
               >
+                {/* Page Content - Sketch Görsel */}
                 <img
                   src={sketchPages[currentPage].src}
-                  alt={`Sketch ${currentPage + 1}`}
-                  className="w-full h-full object-cover"
+                  alt={sketchPages[currentPage].label}
+                  className="absolute inset-0 w-full h-full object-contain"
                 />
 
                 {/* Page Edge Effect */}
@@ -103,10 +107,6 @@ const SketchbookSection = () => {
               <ChevronLeft size={24} />
             </button>
 
-            <span className="text-sm text-muted-foreground tracking-wider">
-              {currentPage + 1} / {sketchPages.length}
-            </span>
-
             <button
               onClick={handleNext}
               disabled={currentPage === sketchPages.length - 1 || isFlipping}
@@ -119,6 +119,7 @@ const SketchbookSection = () => {
         </div>
       </div>
 
+      {/* Flip Animations */}
       <style>{`
         @keyframes flipRight {
           0% { transform: rotateY(0deg); }
