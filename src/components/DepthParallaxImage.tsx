@@ -172,4 +172,3 @@ const DepthParallaxImage = ({ imageUrl, depthUrl, className = '' }: DepthParalla
 };
 
 export default DepthParallaxImage;
-
