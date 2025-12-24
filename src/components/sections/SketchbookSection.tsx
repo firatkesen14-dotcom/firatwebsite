@@ -5,44 +5,11 @@ const TOTAL = 30;
 export default function SketchbookSection() {
   const [index, setIndex] = useState(0);
   const [flipping, setFlipping] = useState(false);
-  const [dragging, setDragging] = useState(false);
-  const [intent, setIntent] = useState(false);
-
+  const [dragging, setDragging] = useState<null | "left" | "right">(null);
   const startX = useRef(0);
 
-  const canNext = index < TOTAL - 1;
+  const canNext = index < TOTAL - 2;
   const canPrev = index > 0;
-
-  /* ---------------- MOUSE DRAG ---------------- */
-
-  const onMouseDown = (e: React.MouseEvent) => {
-    if (!canNext || flipping) return;
-    startX.current = e.clientX;
-    setDragging(true);
-    setIntent(false);
-  };
-
-  useEffect(() => {
-    const move = (e: MouseEvent) => {
-      if (!dragging) return;
-      if (e.clientX - startX.current < -12) {
-        setIntent(true);
-      }
-    };
-
-    const up = () => {
-      if (!dragging) return;
-      setDragging(false);
-      if (intent) startFlip(1);
-    };
-
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mouseup", up);
-    return () => {
-      window.removeEventListener("mousemove", move);
-      window.removeEventListener("mouseup", up);
-    };
-  }, [dragging, intent]);
 
   /* ---------------- FLIP ---------------- */
 
@@ -60,6 +27,41 @@ export default function SketchbookSection() {
     }, 2600);
   };
 
+  /* ---------------- MOUSE ---------------- */
+
+  const onMouseDown = (side: "left" | "right") => (e: React.MouseEvent) => {
+    if (flipping) return;
+    startX.current = e.clientX;
+    setDragging(side);
+  };
+
+  useEffect(() => {
+    const move = (e: MouseEvent) => {
+      if (!dragging) return;
+
+      const delta = e.clientX - startX.current;
+
+      if (dragging === "right" && delta < -40 && canNext) {
+        setDragging(null);
+        startFlip(1);
+      }
+
+      if (dragging === "left" && delta > 40 && canPrev) {
+        setDragging(null);
+        startFlip(-1);
+      }
+    };
+
+    const up = () => setDragging(null);
+
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", up);
+    return () => {
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseup", up);
+    };
+  }, [dragging]);
+
   /* ---------------- IMAGES ---------------- */
 
   const leftImage =
@@ -70,19 +72,29 @@ export default function SketchbookSection() {
       ? `/sketches/sketch1.JPG`
       : `/sketches/sketch${index + 1}.JPG`;
 
-  const backImage = `/sketches/sketch${index + 2}.JPG`;
-  const nextRight = `/sketches/sketch${index + 3}.JPG`;
+  const backImage =
+    index + 2 < TOTAL
+      ? `/sketches/sketch${index + 2}.JPG`
+      : null;
+
+  const nextRight =
+    index + 3 < TOTAL
+      ? `/sketches/sketch${index + 3}.JPG`
+      : null;
 
   /* ---------------- FLIP STYLE ---------------- */
 
-  const flipStyle = {
-    transform: flipping
-      ? "rotateY(-180deg)"
-      : "rotateY(0deg)",
-    transition: flipping
-      ? "transform 2.6s cubic-bezier(.22,.61,.36,1)"
-      : "none",
-    transformOrigin: "0% center", // 🔥 SPINE MERKEZİ
+  const flipForward = {
+    transform: flipping ? "rotateY(-180deg)" : "rotateY(0deg)",
+    transition: "transform 2.6s cubic-bezier(.22,.61,.36,1)",
+    transformOrigin: "0% center",
+    transformStyle: "preserve-3d" as const,
+  };
+
+  const flipBackward = {
+    transform: flipping ? "rotateY(180deg)" : "rotateY(0deg)",
+    transition: "transform 2.6s cubic-bezier(.22,.61,.36,1)",
+    transformOrigin: "100% center",
     transformStyle: "preserve-3d" as const,
   };
 
@@ -99,115 +111,117 @@ export default function SketchbookSection() {
         }}
       >
         {/* LEFT PAGE */}
-        <div
-          style={{
-            position: "absolute",
-            left: 0,
-            width: "48%",
-            height: "100%",
-            background: "#f5f2ec",
-            boxShadow: "inset -8px 0 12px rgba(0,0,0,.06)",
-          }}
-        >
-          {leftImage ? (
+        {leftImage && (
+          <div
+            onMouseDown={onMouseDown("left")}
+            style={{
+              position: "absolute",
+              left: 0,
+              width: "48%",
+              height: "100%",
+              cursor: "grab",
+            }}
+          >
             <img
               src={leftImage}
-              className="w-full h-full object-contain"
+              className="w-full h-full object-cover"
               draggable={false}
             />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-4xl tracking-widest">
-              SKETCHES
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* SPINE GAP */}
-        <div
-          style={{
-            position: "absolute",
-            left: "48%",
-            width: "4%",
-            height: "100%",
-          }}
-        />
-
-        {/* RIGHT STATIC */}
+        {/* RIGHT PAGE */}
         {!flipping && (
           <div
+            onMouseDown={onMouseDown("right")}
             style={{
               position: "absolute",
               right: 0,
               width: "48%",
               height: "100%",
-              background: "#f5f2ec",
+              cursor: "grab",
             }}
           >
             <img
               src={rightImage}
-              className="w-full h-full object-contain"
+              className="w-full h-full object-cover"
               draggable={false}
             />
           </div>
         )}
 
         {/* NEXT RIGHT FADE */}
-        {flipping && (
+        {flipping && nextRight && (
           <div
             style={{
               position: "absolute",
               right: 0,
               width: "48%",
               height: "100%",
-              background: "#f5f2ec",
               opacity: 0,
               animation: "fadeIn 2.4s ease forwards",
             }}
           >
             <img
               src={nextRight}
-              className="w-full h-full object-contain"
+              className="w-full h-full object-cover"
               draggable={false}
             />
           </div>
         )}
 
-        {/* FLIPPING PAGE (SPINE'DAN DÖNÜYOR) */}
+        {/* FORWARD FLIP */}
         {canNext && (
           <div
-            onMouseDown={onMouseDown}
             style={{
               position: "absolute",
-              left: "50%", // 🔥 iki sayfa arasındaki boşluğun ORTASI
+              left: "50%",
               width: "48%",
               height: "100%",
-              background: "#f5f2ec",
-              cursor: "grab",
-              ...flipStyle,
+              ...flipForward,
             }}
           >
-            {/* FRONT */}
             <img
               src={rightImage}
-              className="absolute w-full h-full object-contain"
+              className="absolute w-full h-full object-cover"
               draggable={false}
             />
 
-            {/* BACK */}
+            {backImage && (
+              <img
+                src={backImage}
+                className="absolute w-full h-full object-cover"
+                style={{
+                  transform: "rotateY(180deg)",
+                  backfaceVisibility: "hidden",
+                }}
+                draggable={false}
+              />
+            )}
+          </div>
+        )}
+
+        {/* BACKWARD FLIP */}
+        {canPrev && (
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              width: "48%",
+              height: "100%",
+              ...flipBackward,
+            }}
+          >
             <img
-              src={backImage}
-              className="absolute w-full h-full object-contain"
-              style={{
-                transform: "rotateY(180deg)",
-                backfaceVisibility: "hidden",
-              }}
+              src={leftImage!}
+              className="absolute w-full h-full object-cover"
               draggable={false}
             />
           </div>
         )}
       </div>
 
-      {/* ARROW NAVIGATION */}
+      {/* ARROWS */}
       <div className="flex gap-10 mt-12 text-xl select-none">
         <button
           onClick={() => canPrev && startFlip(-1)}
