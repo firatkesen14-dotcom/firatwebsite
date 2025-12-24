@@ -22,7 +22,7 @@ export default function SketchbookSection() {
   useEffect(() => {
     const move = (e: MouseEvent) => {
       if (!dragging) return;
-      if (e.clientX < startX.current - 10) {
+      if (e.clientX < startX.current - 12) {
         setDragging(false);
         startFlip(1);
       }
@@ -62,9 +62,10 @@ export default function SketchbookSection() {
       ? `/sketches/sketch1.JPG`
       : `/sketches/sketch${page + 1}.JPG`;
 
-  const backImage = `/sketches/sketch${page + 2}.JPG`;
+  const nextRightImage =
+    page + 2 <= TOTAL ? `/sketches/sketch${page + 2}.JPG` : null;
 
-  /* ---------------- STYLES ---------------- */
+  /* ---------------- FLIP STYLE ---------------- */
 
   const flipStyle: React.CSSProperties = {
     position: "absolute",
@@ -73,13 +74,13 @@ export default function SketchbookSection() {
     width: "50%",
     height: "100%",
     transformStyle: "preserve-3d",
-    transformOrigin: "0% center", // 🔥 KİTABIN ORTASI
+    transformOrigin: "0% center",
     transform: flipping ? "rotateY(-180deg)" : "rotateY(0deg)",
     transition: flipping
       ? "transform 2.4s cubic-bezier(.22,.61,.36,1)"
       : "none",
     cursor: "grab",
-    zIndex: 5,
+    zIndex: 6,
   };
 
   return (
@@ -101,6 +102,7 @@ export default function SketchbookSection() {
             width: "50%",
             height: "100%",
             background: "#f5f2ec",
+            zIndex: 1,
           }}
         >
           {leftImage ? (
@@ -115,24 +117,47 @@ export default function SketchbookSection() {
           )}
         </div>
 
-        {/* RIGHT STATIC PAGE */}
-        {!flipping && (
-          <div
-            style={{
-              position: "absolute",
-              right: 0,
-              top: 0,
-              width: "50%",
-              height: "100%",
-              background: "#f5f2ec",
-            }}
-          >
+        {/* RIGHT PAGE (ALWAYS VISIBLE UNDER FLIP) */}
+        <div
+          style={{
+            position: "absolute",
+            right: 0,
+            top: 0,
+            width: "50%",
+            height: "100%",
+            background: "#f5f2ec",
+            zIndex: 1,
+          }}
+        >
+          {nextRightImage && (
             <img
-              src={rightImage}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              src={nextRightImage}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                opacity: flipping ? 1 : 0,
+                transition: "opacity 1.2s ease",
+              }}
             />
-          </div>
-        )}
+          )}
+        </div>
+
+        {/* BOOK SPINE DEPTH */}
+        <div
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: 0,
+            width: "6px",
+            height: "100%",
+            transform: "translateX(-50%)",
+            background:
+              "linear-gradient(to right, rgba(0,0,0,0.18), rgba(0,0,0,0.02), rgba(0,0,0,0.18))",
+            zIndex: 4,
+            pointerEvents: "none",
+          }}
+        />
 
         {/* FLIPPING PAGE */}
         {canNext && (
@@ -152,7 +177,7 @@ export default function SketchbookSection() {
 
             {/* BACK */}
             <img
-              src={backImage}
+              src={nextRightImage ?? rightImage}
               style={{
                 position: "absolute",
                 inset: 0,
