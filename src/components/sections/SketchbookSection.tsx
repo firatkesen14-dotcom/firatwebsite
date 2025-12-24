@@ -88,12 +88,9 @@ export default function SketchbookSection() {
   };
 
   /* ---------------- IMAGES ---------------- */
-  const leftImage = page === 0 ? null : `/sketches/sketch${page}.JPG`;
-  const rightImage = page === 0 ? `/sketches/sketch1.JPG` : `/sketches/sketch${page + 1}.JPG`;
-  const nextRightImage = page + 3 <= TOTAL ? `/sketches/sketch${page + 3}.JPG` : null;
-  const prevLeftImage = page - 1 >= 0 ? `/sketches/sketch${page - 1}.JPG` : null;
-  const prevPrevLeftImage = page - 2 >= 0 ? `/sketches/sketch${page - 2}.JPG` : null;
-  const nextLeftDuringFlip = page + 2 <= TOTAL ? `/sketches/sketch${page + 2}.JPG` : null;
+  const leftImage = page > 0 ? `/sketches/sketch${page}.JPG` : null;
+  const rightImage = `/sketches/sketch${page + 1}.JPG`;
+  const nextLeftDuringFlip = page + 2 < TOTAL ? `/sketches/sketch${page + 2}.JPG` : null;
   const prevLeftDuringFlip = page - 2 >= 0 ? `/sketches/sketch${page - 2}.JPG` : null;
 
   /* ---------------- STYLES ---------------- */
@@ -160,7 +157,7 @@ export default function SketchbookSection() {
 
         {/* RIGHT PAGE UNDER FLIP */}
         <div style={{ position: "absolute", right: 0, width: "50%", height: "100%", background: "#f5f2ec", zIndex: 1 }}>
-          {nextRightImage && <img src={nextRightImage} style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
+          {page + 2 < TOTAL && <img src={`/sketches/sketch${page + 2}.JPG`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
         </div>
 
         {/* RIGHT FLIP */}
@@ -177,18 +174,20 @@ export default function SketchbookSection() {
                 objectFit: "cover",
               }}
             />
-            <img
-              src={`/sketches/sketch${page + 2}.JPG`}
-              style={{
-                position: "absolute",
-                inset: 0,
-                transform: "rotateY(180deg)",
-                backfaceVisibility: "hidden",
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
-            />
+            {nextLeftDuringFlip && (
+              <img
+                src={nextLeftDuringFlip}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  transform: "rotateY(180deg)",
+                  backfaceVisibility: "hidden",
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            )}
           </div>
         )}
 
@@ -196,8 +195,19 @@ export default function SketchbookSection() {
         {canPrev && (
           <div style={leftFlipStyle}>
             <img src={leftImage || ""} style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", width: "100%", height: "100%", objectFit: "cover" }} />
-            {prevLeftImage && (
-              <img src={prevLeftImage} style={{ position: "absolute", inset: 0, transform: "rotateY(180deg)", backfaceVisibility: "hidden", width: "100%", height: "100%", objectFit: "cover" }} />
+            {prevLeftDuringFlip && (
+              <img
+                src={prevLeftDuringFlip}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  transform: "rotateY(180deg)",
+                  backfaceVisibility: "hidden",
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
             )}
           </div>
         )}
