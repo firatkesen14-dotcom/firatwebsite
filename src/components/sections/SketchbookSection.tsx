@@ -1,260 +1,235 @@
-import { useEffect, useRef, useState } from "react";
+import { useState, useRef } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const TOTAL = 30;
+const PAGE_WIDTH = 420;
+const GAP = 24;
+const FLIP_DURATION = 900;
 
 export default function SketchbookSection() {
-  const [page, setPage] = useState(0);
-  const [flipping, setFlipping] = useState<"next" | "prev" | null>(null);
+  const [page, setPage] = useState(0); // sol sayfa index (0 = kapak)
+  const [flipping, setFlipping] = useState<"forward" | "backward" | null>(null);
 
-  const dragStartX = useRef(0);
+  const dragStartX = useRef<number | null>(null);
   const dragSide = useRef<"left" | "right" | null>(null);
 
-  const canNext = page < TOTAL - 1;
-  const canPrev = page > 0;
+  const canGoForward = page + 1 < TOTAL;
+  const canGoBackward = page > 0;
 
-  /* ---------------- DRAG ---------------- */
+  /* ---------- IMAGES ---------- */
 
-  const onMouseDownRight = (e: React.MouseEvent) => {
-    if (!canNext || flipping) return;
-    dragStartX.current = e.clientX;
-    dragSide.current = "right";
-  };
-
-  // 🔹 EKLENEN: soldan tutup sağa çekerek geri dönüş
-  const onMouseDownLeft = (e: React.MouseEvent) => {
-    if (!canPrev || flipping) return;
-    dragStartX.current = e.clientX;
-    dragSide.current = "left";
-  };
-
-  useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      if (!dragSide.current || flipping) return;
-
-      const delta = e.clientX - dragStartX.current;
-
-      // ileri (sağ sayfadan sola)
-      if (dragSide.current === "right" && delta < -20) {
-        dragSide.current = null;
-        startNext();
-      }
-
-      // 🔹 geri (sol sayfadan sağa)
-      if (dragSide.current === "left" && delta > 20) {
-        dragSide.current = null;
-        startPrev();
-      }
-    };
-
-    const onUp = () => {
-      dragSide.current = null;
-    };
-
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-    };
-  }, [flipping]);
-
-  /* ---------------- FLIP ---------------- */
-
-  const startNext = () => {
-    if (flipping) return;
-    setFlipping("next");
-    setTimeout(() => {
-      setPage(p => Math.min(p + 2, TOTAL - 1));
-      setFlipping(null);
-    }, 2400);
-  };
-
-  const startPrev = () => {
-    if (flipping) return;
-    setFlipping("prev");
-    setTimeout(() => {
-      setPage(p => Math.max(p - 2, 0));
-      setFlipping(null);
-    }, 2400);
-  };
-
-  /* ---------------- IMAGES ---------------- */
-
-  const left =
-    page === 0 ? null : `/sketches/sketch${page}.JPG`;
-
-  const right =
+  const leftImage =
     page === 0
-      ? `/sketches/sketch1.JPG`
-      : `/sketches/sketch${page + 1}.JPG`;
+      ? "/sketches/cover.JPG"
+      : `/sketches/sketch${page}.JPG`;
 
-  const nextRight =
+  const rightImage =
+    page + 1 <= TOTAL
+      ? `/sketches/sketch${page + 1}.JPG`
+      : null;
+
+  // ileri flip sırasında sağ arkada GÖRÜNECEK sayfa
+  const nextRightImage =
     page + 3 <= TOTAL ? `/sketches/sketch${page + 3}.JPG` : null;
 
-  const prevLeft =
-    page - 1 >= 1 ? `/sketches/sketch${page - 1}.JPG` : null;
+  // geri flip sırasında sol arkada GÖRÜNECEK sayfa
+  const prevLeftImage =
+    page - 2 === 0
+      ? "/sketches/cover.JPG"
+      : page - 2 > 0
+      ? `/sketches/sketch${page - 2}.JPG`
+      : null;
 
-  /* ---------------- VIEW ---------------- */
+  /* ---------- MOUSE ---------- */
+
+  const onMouseDown = (side: "left" | "right", e: React.MouseEvent) => {
+    dragStartX.current = e.clientX;
+    dragSide.current = side;
+  };
+
+  const onMouseUp = (e: React.MouseEvent) => {
+    if (dragStartX.current === null || dragSide.current === null) return;
+
+    const delta = e.clientX - dragStartX.current;
+
+    // İLERİ
+    if (dragSide.current === "right" && delta < -40 && canGoForward) {
+      setFlipping("forward");
+      setTimeout(() => {
+        setPage((p) => p + 2);
+        setFlipping(null);
+      }, FLIP_DURATION);
+    }
+
+    // GERİ
+    if (dragSide.current === "left" && delta > 40 && canGoBackward) {
+      setFlipping("backward");
+      setTimeout(() => {
+        setPage((p) => p - 2);
+        setFlipping(null);
+      }, FLIP_DURATION);
+    }
+
+    dragStartX.current = null;
+    dragSide.current = null;
+  };
+
+  /* ---------- RENDER ---------- */
 
   return (
-    <section className="py-32 flex justify-center">
-      <div
-        style={{
-          width: 1000,
-          height: 700,
-          perspective: 2600,
-          position: "relative",
-        }}
-      >
-        {/* LEFT PAGE */}
+    <section className="py-32 select-none">
+      <div className="mx-auto max-w-6xl">
+        <h2 className="text-4xl font-light text-center mb-16">
+          Sketchbook
+        </h2>
+
         <div
-          onMouseDown={onMouseDownLeft} // 🔹 soldan geri drag
+          className="relative mx-auto"
           style={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            width: "50%",
-            height: "100%",
-            background: "#f5f2ec",
-            zIndex: 1,
+            width: PAGE_WIDTH * 2 + GAP,
+            perspective: "1800px",
           }}
+          onMouseUp={onMouseUp}
         >
-          {left ? (
+          {/* SOL ARKA (geri flip için kapak vs) */}
+          {flipping === "backward" && prevLeftImage && (
             <img
-              src={left}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
+              src={prevLeftImage}
+              className="absolute top-0 left-0 shadow-xl"
+              style={{ width: PAGE_WIDTH }}
+              draggable={false}
             />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-4xl tracking-widest">
-              SKETCHES
+          )}
+
+          {/* SOL SAYFA */}
+          <img
+            src={leftImage}
+            className="absolute top-0 left-0 shadow-xl cursor-grab"
+            style={{ width: PAGE_WIDTH }}
+            onMouseDown={(e) => onMouseDown("left", e)}
+            draggable={false}
+          />
+
+          {/* SAĞ SAYFA */}
+          {rightImage && (
+            <img
+              src={rightImage}
+              className="absolute top-0 shadow-xl cursor-grab"
+              style={{
+                width: PAGE_WIDTH,
+                left: PAGE_WIDTH + GAP,
+              }}
+              onMouseDown={(e) => onMouseDown("right", e)}
+              draggable={false}
+            />
+          )}
+
+          {/* SAĞ ARKA (ileri flip için sketch3) */}
+          {flipping === "forward" && nextRightImage && (
+            <img
+              src={nextRightImage}
+              className="absolute top-0 shadow-xl"
+              style={{
+                width: PAGE_WIDTH,
+                left: PAGE_WIDTH + GAP,
+                opacity: 0.9,
+              }}
+              draggable={false}
+            />
+          )}
+
+          {/* FLIP SAYFA */}
+          {flipping && (
+            <div
+              className={`absolute top-0 ${
+                flipping === "forward" ? "right-0" : "left-0"
+              }`}
+              style={{
+                width: PAGE_WIDTH,
+                transformStyle: "preserve-3d",
+                transformOrigin: "center center",
+                animation: `${
+                  flipping === "forward" ? "flipForward" : "flipBackward"
+                } ${FLIP_DURATION}ms cubic-bezier(.25,.8,.25,1) forwards`,
+              }}
+            >
+              {/* FRONT */}
+              <img
+                src={
+                  flipping === "forward"
+                    ? rightImage!
+                    : `/sketches/sketch${page}.JPG`
+                }
+                style={{ backfaceVisibility: "hidden" }}
+                draggable={false}
+              />
+
+              {/* BACK */}
+              <img
+                src={
+                  flipping === "forward"
+                    ? `/sketches/sketch${page + 2}.JPG`
+                    : leftImage
+                }
+                style={{
+                  transform: "rotateY(180deg)",
+                  backfaceVisibility: "hidden",
+                }}
+                draggable={false}
+              />
             </div>
           )}
         </div>
 
-        {/* RIGHT PAGE */}
-        <div
-          style={{
-            position: "absolute",
-            right: 0,
-            top: 0,
-            width: "50%",
-            height: "100%",
-            background: "#f5f2ec",
-            zIndex: 1,
-          }}
-        >
-          {nextRight && (
-            <img
-              src={nextRight}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                opacity: flipping === "next" ? 1 : 0,
-                transition: "opacity 1.2s ease",
-              }}
-            />
-          )}
+        {/* OKLAR */}
+        <div className="flex justify-center items-center gap-8 mt-12">
+          <button
+            disabled={!canGoBackward || flipping !== null}
+            onClick={() => {
+              setFlipping("backward");
+              setTimeout(() => {
+                setPage((p) => p - 2);
+                setFlipping(null);
+              }, FLIP_DURATION);
+            }}
+          >
+            <ChevronLeft />
+          </button>
+
+          <button
+            disabled={!canGoForward || flipping !== null}
+            onClick={() => {
+              setFlipping("forward");
+              setTimeout(() => {
+                setPage((p) => p + 2);
+                setFlipping(null);
+              }, FLIP_DURATION);
+            }}
+          >
+            <ChevronRight />
+          </button>
         </div>
 
-        {/* SPINE */}
-        <div
-          style={{
-            position: "absolute",
-            left: "50%",
-            width: 6,
-            height: "100%",
-            transform: "translateX(-50%)",
-            background:
-              "linear-gradient(to right, rgba(0,0,0,.18), rgba(0,0,0,.02), rgba(0,0,0,.18))",
-            zIndex: 4,
-          }}
-        />
+        {/* KEYFRAMES */}
+        <style>{`
+          @keyframes flipForward {
+            0% {
+              transform: rotateY(0deg) translateZ(0);
+            }
+            100% {
+              transform: rotateY(-180deg) translateZ(0);
+            }
+          }
 
-        {/* NEXT FLIP */}
-        {canNext && (
-          <div
-            onMouseDown={onMouseDownRight}
-            style={{
-              position: "absolute",
-              right: 0,
-              width: "50%",
-              height: "100%",
-              transformStyle: "preserve-3d",
-              transformOrigin: "0% center",
-              transform:
-                flipping === "next" ? "rotateY(-180deg)" : "none",
-              transition:
-                flipping === "next"
-                  ? "transform 2.4s cubic-bezier(.22,.61,.36,1)"
-                  : "none",
-              zIndex: 6,
-            }}
-          >
-            <img
-              src={right}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                backfaceVisibility: "hidden",
-              }}
-            />
-            <img
-              src={`/sketches/sketch${page + 2}.JPG`}
-              style={{
-                position: "absolute",
-                inset: 0,
-                transform: "rotateY(180deg)",
-                backfaceVisibility: "hidden",
-              }}
-            />
-          </div>
-        )}
-
-        {/* PREV FLIP (geri dönüş – AYNI efekt) */}
-        {canPrev && (
-          <div
-            style={{
-              position: "absolute",
-              left: 0,
-              width: "50%",
-              height: "100%",
-              transformStyle: "preserve-3d",
-              transformOrigin: "100% center",
-              transform:
-                flipping === "prev" ? "rotateY(180deg)" : "none",
-              transition:
-                flipping === "prev"
-                  ? "transform 2.4s cubic-bezier(.22,.61,.36,1)"
-                  : "none",
-              zIndex: 5,
-            }}
-          >
-            <img
-              src={left!}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                backfaceVisibility: "hidden",
-              }}
-            />
-            <img
-              src={prevLeft ?? "/sketches/cover.JPG"}
-              style={{
-                position: "absolute",
-                inset: 0,
-                transform: "rotateY(180deg)",
-                backfaceVisibility: "hidden",
-              }}
-            />
-          </div>
-        )}
+          @keyframes flipBackward {
+            0% {
+              transform: rotateY(0deg) translateZ(0);
+            }
+            100% {
+              transform: rotateY(180deg) translateZ(0);
+            }
+          }
+        `}</style>
       </div>
     </section>
   );
