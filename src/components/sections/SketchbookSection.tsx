@@ -93,7 +93,6 @@ export default function SketchbookSection() {
   const rightImage = page === 0 ? `/sketches/sketch1.JPG` : `/sketches/sketch${page + 1}.JPG`;
   const nextRightImage = page + 3 <= TOTAL ? `/sketches/sketch${page + 3}.JPG` : null;
   const prevLeftImage = page - 1 >= 0 ? `/sketches/sketch${page - 1}.JPG` : null;
-  const prevPrevLeftImage = page - 2 >= 0 ? `/sketches/sketch${page - 2}.JPG` : null;
 
   /* ---------------- STYLES ---------------- */
   const rightFlipStyle: React.CSSProperties = {
@@ -129,23 +128,23 @@ export default function SketchbookSection() {
   };
 
   /* ---------------- DISPLAY LOGIC ---------------- */
+  // Sol sayfa
   const leftDisplayImage =
-    flipping === "next" && flipProgress >= 50 && page + 2 <= TOTAL
-      ? `/sketches/sketch${page + 2}.JPG`
-      : leftImage;
-
-  const rightFrontOpacity =
     flipping === "next"
       ? flipProgress < 50
-        ? 1
-        : 0
-      : 1;
-  const rightBackOpacity =
-    flipping === "next"
-      ? flipProgress >= 50
-        ? 1
-        : 0
-      : 0;
+        ? leftImage
+        : page + 2 <= TOTAL
+        ? `/sketches/sketch${page + 2}.JPG`
+        : null
+      : leftImage;
+
+  // Sağ flip ön ve arka
+  const rightFrontOpacity = flipping === "next" ? (flipProgress < 50 ? 1 : 0) : 1;
+  const rightBackOpacity = flipping === "next" ? (flipProgress >= 50 ? 1 : 0) : 0;
+  const rightBackImage =
+    flipProgress >= 50 && page + 2 <= TOTAL
+      ? `/sketches/sketch${page + 2}.JPG`
+      : `/sketches/sketch${page + 1}.JPG`;
 
   return (
     <section className="py-32 flex justify-center">
@@ -217,7 +216,7 @@ export default function SketchbookSection() {
               }}
             />
             <img
-              src={`/sketches/sketch${page + 2}.JPG`}
+              src={rightBackImage}
               style={{
                 position: "absolute",
                 inset: 0,
