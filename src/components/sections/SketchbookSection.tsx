@@ -125,13 +125,9 @@ export default function SketchbookSection() {
 
   /* ---------------- LEFT PAGE DURUMU ---------------- */
   let leftDisplayImage = leftImage;
-
-  // İleri flip için: flipProgress >= 50 olduğunda sol sayfa değişsin
-  if (flipping === "next") {
-    leftDisplayImage = flipProgress < 50 ? leftImage : nextLeftDuringFlip || leftImage;
+  if (flipping === "next" && flipProgress >= 50) {
+    leftDisplayImage = nextLeftDuringFlip || leftImage;
   }
-
-  // Geri flip için mevcut mantık
   if (flipping === "prev" && flipProgress >= 50) {
     leftDisplayImage = prevLeftDuringFlip || leftImage;
   }
@@ -182,7 +178,7 @@ export default function SketchbookSection() {
               }}
             />
             <img
-              src={nextLeftDuringFlip || ""}
+              src={`/sketches/sketch${page + 2}.JPG`}
               style={{
                 position: "absolute",
                 inset: 0,
@@ -201,18 +197,7 @@ export default function SketchbookSection() {
           <div style={leftFlipStyle}>
             <img src={leftImage || ""} style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", width: "100%", height: "100%", objectFit: "cover" }} />
             {prevLeftImage && (
-              <img
-                src={prevLeftImage}
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  transform: "rotateY(180deg)",
-                  backfaceVisibility: "hidden",
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
-              />
+              <img src={prevLeftImage} style={{ position: "absolute", inset: 0, transform: "rotateY(180deg)", backfaceVisibility: "hidden", width: "100%", height: "100%", objectFit: "cover" }} />
             )}
           </div>
         )}
