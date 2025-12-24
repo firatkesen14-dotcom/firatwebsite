@@ -106,15 +106,18 @@ export default function SketchbookSection() {
     zIndex: 6,
   };
 
-  /* ---------------- FADE CONTROL ---------------- */
+  /* ---------------- FADE & ZINDEX CONTROL ---------------- */
+  // Flip sırasında arkada duran sayfa hep alt katmanda
   const leftFadeStyle: React.CSSProperties = {
     opacity: flipping === "next" ? 0 : 1,
     transition: "opacity 2.4s ease",
+    zIndex: flipping === "next" ? 2 : 4,
   };
 
   const rightFadeStyle: React.CSSProperties = {
     opacity: flipping === "prev" ? 0 : 1,
     transition: "opacity 2.4s ease",
+    zIndex: flipping === "prev" ? 2 : 4,
   };
 
   return (
