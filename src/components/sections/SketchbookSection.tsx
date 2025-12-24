@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
 const TOTAL = 30;
-const DOT_COUNT = 5;
 
 export default function SketchbookSection() {
   const [index, setIndex] = useState(0);
@@ -10,10 +9,11 @@ export default function SketchbookSection() {
   const [intent, setIntent] = useState(false);
 
   const startX = useRef(0);
+
   const canNext = index < TOTAL - 1;
   const canPrev = index > 0;
 
-  /* ---------------- DRAG ---------------- */
+  /* ---------------- MOUSE DRAG ---------------- */
 
   const onMouseDown = (e: React.MouseEvent) => {
     if (!canNext || flipping) return;
@@ -73,7 +73,7 @@ export default function SketchbookSection() {
   const backImage = `/sketches/sketch${index + 2}.JPG`;
   const nextRight = `/sketches/sketch${index + 3}.JPG`;
 
-  /* ---------------- STYLES ---------------- */
+  /* ---------------- FLIP STYLE ---------------- */
 
   const flipStyle = {
     transform: flipping
@@ -82,14 +82,9 @@ export default function SketchbookSection() {
     transition: flipping
       ? "transform 2.6s cubic-bezier(.22,.61,.36,1)"
       : "none",
-    transformOrigin: "50% center", // 🔥 AKS ORTADA
+    transformOrigin: "0% center", // 🔥 SPINE MERKEZİ
     transformStyle: "preserve-3d" as const,
   };
-
-  /* ---------------- DOT LOGIC ---------------- */
-
-  const progress = Math.floor(index / 2);
-  const dots = Array.from({ length: DOT_COUNT }, (_, i) => i);
 
   return (
     <section className="w-full py-32 flex flex-col items-center">
@@ -99,7 +94,7 @@ export default function SketchbookSection() {
         style={{
           width: "1000px",
           height: "700px",
-          perspective: "2400px",
+          perspective: "2600px",
           position: "relative",
         }}
       >
@@ -156,7 +151,7 @@ export default function SketchbookSection() {
           </div>
         )}
 
-        {/* NEXT PAGE FADE */}
+        {/* NEXT RIGHT FADE */}
         {flipping && (
           <div
             style={{
@@ -177,13 +172,13 @@ export default function SketchbookSection() {
           </div>
         )}
 
-        {/* FLIPPING PAGE */}
+        {/* FLIPPING PAGE (SPINE'DAN DÖNÜYOR) */}
         {canNext && (
           <div
             onMouseDown={onMouseDown}
             style={{
               position: "absolute",
-              left: "50%", // 🔥 ortadan başlıyor
+              left: "50%", // 🔥 iki sayfa arasındaki boşluğun ORTASI
               width: "48%",
               height: "100%",
               background: "#f5f2ec",
@@ -191,11 +186,14 @@ export default function SketchbookSection() {
               ...flipStyle,
             }}
           >
+            {/* FRONT */}
             <img
               src={rightImage}
               className="absolute w-full h-full object-contain"
               draggable={false}
             />
+
+            {/* BACK */}
             <img
               src={backImage}
               className="absolute w-full h-full object-contain"
@@ -209,33 +207,17 @@ export default function SketchbookSection() {
         )}
       </div>
 
-      {/* NAVIGATION */}
-      <div className="flex items-center gap-6 mt-12 text-lg select-none">
+      {/* ARROW NAVIGATION */}
+      <div className="flex gap-10 mt-12 text-xl select-none">
         <button
           onClick={() => canPrev && startFlip(-1)}
-          className="opacity-60 hover:opacity-100"
+          className="opacity-60 hover:opacity-100 transition"
         >
           &lt;
         </button>
-
-        <div className="flex gap-3">
-          {dots.map(i => (
-            <span
-              key={i}
-              className={`w-3 h-3 rounded-full transition ${
-                i === 0
-                  ? "opacity-30"
-                  : i <= progress
-                  ? "bg-black"
-                  : "bg-black/30"
-              }`}
-            />
-          ))}
-        </div>
-
         <button
           onClick={() => canNext && startFlip(1)}
-          className="opacity-60 hover:opacity-100"
+          className="opacity-60 hover:opacity-100 transition"
         >
           &gt;
         </button>
