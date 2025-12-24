@@ -93,6 +93,7 @@ export default function SketchbookSection() {
   const nextRightImage = page + 3 <= TOTAL ? `/sketches/sketch${page + 3}.JPG` : null;
   const prevLeftImage = page - 1 >= 0 ? `/sketches/sketch${page - 1}.JPG` : null;
   const prevPrevLeftImage = page - 2 >= 0 ? `/sketches/sketch${page - 2}.JPG` : null;
+  const nextLeftDuringFlip = page + 2 <= TOTAL ? `/sketches/sketch${page + 2}.JPG` : null;
 
   /* ---------------- STYLES ---------------- */
   const rightFlipStyle: React.CSSProperties = {
@@ -122,16 +123,13 @@ export default function SketchbookSection() {
   };
 
   /* ---------------- LEFT PAGE DURUMU ---------------- */
-  // İleri flipte soldaki sayfa flip boyunca sabit, DOM değişimi flip tamamlandıktan sonra
+  // İleri flipte soldaki sayfa flip boyunca sabit, 50% sonrası yeni sayfa görünmeye başlar
   const leftDisplayImage =
-    flipping === "prev"
+    flipping === "next" && flipProgress >= 50
+      ? nextLeftDuringFlip || leftImage
+      : flipping === "prev"
       ? prevPrevLeftImage || leftImage
       : leftImage;
-
-  /* ---------------- RIGHT PAGE OPACITY ---------------- */
-  // İleri flipte sağdaki sayfa 0-180° boyunca dönüyor, arka yüz görünür
-  const rightFrontOpacity = 1;
-  const rightBackOpacity = 1;
 
   return (
     <section className="py-32 flex justify-center">
@@ -176,7 +174,6 @@ export default function SketchbookSection() {
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-                opacity: rightFrontOpacity,
               }}
             />
             <img
@@ -189,7 +186,6 @@ export default function SketchbookSection() {
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-                opacity: rightBackOpacity,
               }}
             />
           </div>
