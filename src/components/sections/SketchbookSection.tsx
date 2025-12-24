@@ -25,7 +25,7 @@ export default function SketchbookSection() {
   useEffect(() => {
     const move = (e: MouseEvent) => {
       if (!dragging) return;
-      if (e.clientX - startX.current < -12) {
+      if (e.clientX - startX.current < -10) {
         setIntent(true);
       }
     };
@@ -75,15 +75,13 @@ export default function SketchbookSection() {
 
   /* ---------------- FLIP STYLE ---------------- */
 
-  const flipStyle = {
-    transform: flipping
-      ? "rotateY(-180deg)"
-      : "rotateY(0deg)",
+  const flipStyle: React.CSSProperties = {
+    transform: flipping ? "rotateY(-180deg)" : "rotateY(0deg)",
     transition: flipping
       ? "transform 2.6s cubic-bezier(.22,.61,.36,1)"
       : "none",
-    transformOrigin: "0% center", // 🔥 SPINE MERKEZİ
-    transformStyle: "preserve-3d" as const,
+    transformOrigin: "50% center", // 🔥 spine GAP merkezinden
+    transformStyle: "preserve-3d",
   };
 
   return (
@@ -106,13 +104,12 @@ export default function SketchbookSection() {
             width: "48%",
             height: "100%",
             background: "#f5f2ec",
-            boxShadow: "inset -8px 0 12px rgba(0,0,0,.06)",
           }}
         >
           {leftImage ? (
             <img
               src={leftImage}
-              className="w-full h-full object-contain"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
               draggable={false}
             />
           ) : (
@@ -145,7 +142,7 @@ export default function SketchbookSection() {
           >
             <img
               src={rightImage}
-              className="w-full h-full object-contain"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
               draggable={false}
             />
           </div>
@@ -166,19 +163,19 @@ export default function SketchbookSection() {
           >
             <img
               src={nextRight}
-              className="w-full h-full object-contain"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
               draggable={false}
             />
           </div>
         )}
 
-        {/* FLIPPING PAGE (SPINE'DAN DÖNÜYOR) */}
+        {/* FLIPPING PAGE */}
         {canNext && (
           <div
             onMouseDown={onMouseDown}
             style={{
               position: "absolute",
-              left: "50%", // 🔥 iki sayfa arasındaki boşluğun ORTASI
+              left: "50%",
               width: "48%",
               height: "100%",
               background: "#f5f2ec",
@@ -189,15 +186,24 @@ export default function SketchbookSection() {
             {/* FRONT */}
             <img
               src={rightImage}
-              className="absolute w-full h-full object-contain"
+              style={{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                backfaceVisibility: "hidden",
+              }}
               draggable={false}
             />
 
             {/* BACK */}
             <img
               src={backImage}
-              className="absolute w-full h-full object-contain"
               style={{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
                 transform: "rotateY(180deg)",
                 backfaceVisibility: "hidden",
               }}
@@ -207,7 +213,7 @@ export default function SketchbookSection() {
         )}
       </div>
 
-      {/* ARROW NAVIGATION */}
+      {/* ARROWS */}
       <div className="flex gap-10 mt-12 text-xl select-none">
         <button
           onClick={() => canPrev && startFlip(-1)}
