@@ -5,7 +5,7 @@ const TOTAL = 30;
 export default function SketchbookSection() {
   const [page, setPage] = useState(0);
   const [flipping, setFlipping] = useState(false);
-  const [dragging, setDragging] = useState(false);
+  const [dragging, setDragging] = useState<"next" | "prev" | null>(null);
   const startX = useRef(0);
 
   const canNext = page < TOTAL - 1;
@@ -13,22 +13,34 @@ export default function SketchbookSection() {
 
   /* ---------------- DRAG ---------------- */
 
-  const onMouseDown = (e: React.MouseEvent) => {
+  const onMouseDownRight = (e: React.MouseEvent) => {
     if (!canNext || flipping) return;
     startX.current = e.clientX;
-    setDragging(true);
+    setDragging("next");
+  };
+
+  const onMouseDownLeft = (e: React.MouseEvent) => {
+    if (!canPrev || flipping) return;
+    startX.current = e.clientX;
+    setDragging("prev");
   };
 
   useEffect(() => {
     const move = (e: MouseEvent) => {
       if (!dragging) return;
-      if (e.clientX < startX.current - 12) {
-        setDragging(false);
+
+      if (dragging === "next" && e.clientX < startX.current - 12) {
+        setDragging(null);
         startFlip(1);
+      }
+
+      if (dragging === "prev" && e.clientX > startX.current + 12) {
+        setDragging(null);
+        startFlip(-1);
       }
     };
 
-    const up = () => setDragging(false);
+    const up = () => setDragging(null);
 
     window.addEventListener("mousemove", move);
     window.addEventListener("mouseup", up);
@@ -62,22 +74,20 @@ export default function SketchbookSection() {
       ? `/sketches/sketch1.JPG`
       : `/sketches/sketch${page + 1}.JPG`;
 
-  // 🔧 DÜZELTİLEN KISIM
-  // Flip olurken sağ arkada GÖRÜNECEK sayfa = page + 3
   const nextRightImage =
     page + 3 <= TOTAL ? `/sketches/sketch${page + 3}.JPG` : null;
 
-  /* ---------------- FLIP STYLE ---------------- */
+  const prevLeftImage =
+    page - 2 >= 0 ? `/sketches/sketch${page - 1}.JPG` : null;
 
-  const flipStyle: React.CSSProperties = {
+  /* ---------------- STYLES ---------------- */
+
+  const baseFlip: React.CSSProperties = {
     position: "absolute",
     top: 0,
-    right: 0,
     width: "50%",
     height: "100%",
     transformStyle: "preserve-3d",
-    transformOrigin: "0% center",
-    transform: flipping ? "rotateY(-180deg)" : "rotateY(0deg)",
     transition: flipping
       ? "transform 2.4s cubic-bezier(.22,.61,.36,1)"
       : "none",
@@ -97,6 +107,7 @@ export default function SketchbookSection() {
       >
         {/* LEFT PAGE */}
         <div
+          onMouseDown={onMouseDownLeft}
           style={{
             position: "absolute",
             left: 0,
@@ -161,10 +172,19 @@ export default function SketchbookSection() {
           }}
         />
 
-        {/* FLIPPING PAGE */}
+        {/* FORWARD FLIP */}
         {canNext && (
-          <div onMouseDown={onMouseDown} style={flipStyle}>
-            {/* FRONT */}
+          <div
+            onMouseDown={onMouseDownRight}
+            style={{
+              ...baseFlip,
+              right: 0,
+              transformOrigin: "0% center",
+              transform: flipping && dragging !== "prev"
+                ? "rotateY(-180deg)"
+                : "rotateY(0deg)",
+            }}
+          >
             <img
               src={rightImage}
               style={{
@@ -176,14 +196,8 @@ export default function SketchbookSection() {
                 backfaceVisibility: "hidden",
               }}
             />
-
-            {/* BACK → Sketch2 */}
             <img
-              src={
-                page + 2 <= TOTAL
-                  ? `/sketches/sketch${page + 2}.JPG`
-                  : rightImage
-              }
+              src={`/sketches/sketch${page + 2}.JPG`}
               style={{
                 position: "absolute",
                 inset: 0,
@@ -194,6 +208,46 @@ export default function SketchbookSection() {
                 backfaceVisibility: "hidden",
               }}
             />
+          </div>
+        )}
+
+        {/* BACKWARD FLIP */}
+        {canPrev && (
+          <div
+            style={{
+              ...baseFlip,
+              left: 0,
+              transformOrigin: "100% center",
+              transform: flipping && dragging === "prev"
+                ? "rotateY(180deg)"
+                : "rotateY(0deg)",
+            }}
+          >
+            <img
+              src={leftImage || ""}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                backfaceVisibility: "hidden",
+              }}
+            />
+            {prevLeftImage && (
+              <img
+                src={prevLeftImage}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  transform: "rotateY(180deg)",
+                  backfaceVisibility: "hidden",
+                }}
+              />
+            )}
           </div>
         )}
 
