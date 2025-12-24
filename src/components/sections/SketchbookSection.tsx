@@ -11,29 +11,33 @@ export default function SketchbookSection() {
   const canNext = page < TOTAL - 1;
   const canPrev = page > 0;
 
-  /* ---------------- DRAG ---------------- */
+  /* ---------------- DRAG START ---------------- */
 
   const onMouseDownRight = (e: React.MouseEvent) => {
     if (!canNext || flipping) return;
     startX.current = e.clientX;
-    setDragging("next");
+    setDragging("next"); // ileri
   };
 
   const onMouseDownLeft = (e: React.MouseEvent) => {
     if (!canPrev || flipping) return;
     startX.current = e.clientX;
-    setDragging("prev");
+    setDragging("prev"); // geri
   };
+
+  /* ---------------- DRAG MOVE ---------------- */
 
   useEffect(() => {
     const move = (e: MouseEvent) => {
-      if (!dragging) return;
+      if (!dragging || flipping) return;
 
+      // ileri → sağ sayfa → sola çek
       if (dragging === "next" && e.clientX < startX.current - 12) {
         setDragging(null);
         startFlip(1);
       }
 
+      // geri → sol sayfa → sağa çek
       if (dragging === "prev" && e.clientX > startX.current + 12) {
         setDragging(null);
         startFlip(-1);
@@ -44,11 +48,12 @@ export default function SketchbookSection() {
 
     window.addEventListener("mousemove", move);
     window.addEventListener("mouseup", up);
+
     return () => {
       window.removeEventListener("mousemove", move);
       window.removeEventListener("mouseup", up);
     };
-  }, [dragging]);
+  }, [dragging, flipping]);
 
   /* ---------------- FLIP ---------------- */
 
@@ -58,7 +63,9 @@ export default function SketchbookSection() {
 
     setTimeout(() => {
       setPage(p =>
-        dir === 1 ? Math.min(p + 2, TOTAL - 1) : Math.max(p - 2, 0)
+        dir === 1
+          ? Math.min(p + 2, TOTAL - 1)
+          : Math.max(p - 2, 0)
       );
       setFlipping(false);
     }, 2400);
@@ -77,17 +84,17 @@ export default function SketchbookSection() {
   const nextRightImage =
     page + 3 <= TOTAL ? `/sketches/sketch${page + 3}.JPG` : null;
 
-  const prevLeftImage =
-    page - 2 >= 0 ? `/sketches/sketch${page - 1}.JPG` : null;
+  /* ---------------- FLIP STYLE ---------------- */
 
-  /* ---------------- STYLES ---------------- */
-
-  const baseFlip: React.CSSProperties = {
+  const flipStyle: React.CSSProperties = {
     position: "absolute",
     top: 0,
+    right: 0,
     width: "50%",
     height: "100%",
     transformStyle: "preserve-3d",
+    transformOrigin: "0% center",
+    transform: flipping ? "rotateY(-180deg)" : "rotateY(0deg)",
     transition: flipping
       ? "transform 2.4s cubic-bezier(.22,.61,.36,1)"
       : "none",
@@ -116,6 +123,7 @@ export default function SketchbookSection() {
             height: "100%",
             background: "#f5f2ec",
             zIndex: 1,
+            cursor: canPrev ? "grab" : "default",
           }}
         >
           {leftImage ? (
@@ -130,7 +138,7 @@ export default function SketchbookSection() {
           )}
         </div>
 
-        {/* RIGHT PAGE (UNDER FLIP) */}
+        {/* RIGHT PAGE UNDER */}
         <div
           style={{
             position: "absolute",
@@ -172,19 +180,10 @@ export default function SketchbookSection() {
           }}
         />
 
-        {/* FORWARD FLIP */}
+        {/* FLIPPING PAGE */}
         {canNext && (
-          <div
-            onMouseDown={onMouseDownRight}
-            style={{
-              ...baseFlip,
-              right: 0,
-              transformOrigin: "0% center",
-              transform: flipping && dragging !== "prev"
-                ? "rotateY(-180deg)"
-                : "rotateY(0deg)",
-            }}
-          >
+          <div onMouseDown={onMouseDownRight} style={flipStyle}>
+            {/* FRONT */}
             <img
               src={rightImage}
               style={{
@@ -196,8 +195,14 @@ export default function SketchbookSection() {
                 backfaceVisibility: "hidden",
               }}
             />
+
+            {/* BACK */}
             <img
-              src={`/sketches/sketch${page + 2}.JPG`}
+              src={
+                page + 2 <= TOTAL
+                  ? `/sketches/sketch${page + 2}.JPG`
+                  : rightImage
+              }
               style={{
                 position: "absolute",
                 inset: 0,
@@ -210,62 +215,6 @@ export default function SketchbookSection() {
             />
           </div>
         )}
-
-        {/* BACKWARD FLIP */}
-        {canPrev && (
-          <div
-            style={{
-              ...baseFlip,
-              left: 0,
-              transformOrigin: "100% center",
-              transform: flipping && dragging === "prev"
-                ? "rotateY(180deg)"
-                : "rotateY(0deg)",
-            }}
-          >
-            <img
-              src={leftImage || ""}
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                backfaceVisibility: "hidden",
-              }}
-            />
-            {prevLeftImage && (
-              <img
-                src={prevLeftImage}
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  transform: "rotateY(180deg)",
-                  backfaceVisibility: "hidden",
-                }}
-              />
-            )}
-          </div>
-        )}
-
-        {/* ARROWS */}
-        <div className="absolute bottom-[-60px] left-1/2 -translate-x-1/2 flex gap-12 text-xl">
-          <button
-            onClick={() => canPrev && startFlip(-1)}
-            className="opacity-60 hover:opacity-100"
-          >
-            &lt;
-          </button>
-          <button
-            onClick={() => canNext && startFlip(1)}
-            className="opacity-60 hover:opacity-100"
-          >
-            &gt;
-          </button>
-        </div>
       </div>
     </section>
   );
