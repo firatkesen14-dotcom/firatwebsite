@@ -1,162 +1,182 @@
-import { useState, useRef } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
-const TOTAL = 30;
+const TOTAL_PAGES = 30;
 
 export default function SketchbookSection() {
-  const [spread, setSpread] = useState(-1);
-  const [dragX, setDragX] = useState(0);
+  const [spread, setSpread] = useState(0); // 0: kapak + 1, sonra 2-3, 4-5...
+  const [isFlipping, setIsFlipping] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [dragLeftIntent, setDragLeftIntent] = useState(false);
+
   const startX = useRef(0);
 
-  const leftSketch = spread === -1 ? null : spread + 1;
-  const rightSketch = spread === -1 ? 1 : spread + 2;
+  const canGoNext = spread < TOTAL_PAGES - 1;
+  const canGoPrev = spread > 0;
 
-  const canGoNext = rightSketch < TOTAL;
-  const canGoPrev = spread > -1;
-
-  /* ---------------- drag ---------------- */
+  /* ---------------- MOUSE DRAG LOGIC ---------------- */
 
   const onMouseDown = (e: React.MouseEvent) => {
-    if (!canGoNext) return;
+    if (!canGoNext || isFlipping) return;
     startX.current = e.clientX;
     setIsDragging(true);
+    setDragLeftIntent(false);
   };
 
-  const onMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    const delta = e.clientX - startX.current;
-    setDragX(Math.min(0, delta));
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      const delta = e.clientX - startX.current;
+      if (delta < 0) setDragLeftIntent(true); // en ufak sola niyet yeter
+    };
+
+    const onUp = () => {
+      if (!isDragging) return;
+      setIsDragging(false);
+
+      if (dragLeftIntent && canGoNext) {
+        triggerNext();
+      }
+    };
+
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, [isDragging, dragLeftIntent, canGoNext]);
+
+  /* ---------------- PAGE CHANGE ---------------- */
+
+  const triggerNext = () => {
+    if (isFlipping) return;
+    setIsFlipping(true);
+
+    setTimeout(() => {
+      setSpread(s => Math.min(s + 2, TOTAL_PAGES - 1));
+      setIsFlipping(false);
+    }, 2200);
   };
 
-  const onMouseUp = () => {
-    if (!isDragging) return;
-
-    if (dragX < -160 && canGoNext) {
-      setSpread(s => s + 2);
-    }
-
-    setDragX(0);
-    setIsDragging(false);
+  const triggerPrev = () => {
+    if (isFlipping || !canGoPrev) return;
+    setSpread(s => Math.max(s - 2, 0));
   };
 
-  /* ---------------- paper math ---------------- */
+  /* ---------------- IMAGE PATHS ---------------- */
 
-  const progress = Math.min(1, Math.abs(dragX) / 260);
-  const rotateY = -180 * progress;
-  const skewY = 12 * progress;
-  const shadowOpacity = 0.25 * progress;
+  const leftPage =
+    spread === 0
+      ? null
+      : `/sketches/sketch${spread}.JPG`;
 
-  /* ---------------- arrows ---------------- */
+  const rightPage =
+    spread === 0
+      ? `/sketches/sketch1.JPG`
+      : `/sketches/sketch${spread + 1}.JPG`;
 
-  const goNext = () => canGoNext && setSpread(s => s + 2);
-  const goPrev = () => canGoPrev && setSpread(s => Math.max(-1, s - 2));
+  /* ---------------- STYLES ---------------- */
+
+  const flipStyle = {
+    transform: isFlipping
+      ? "rotateY(-180deg) skewY(12deg)"
+      : "rotateY(0deg)",
+    transition: isFlipping
+      ? "transform 2.2s cubic-bezier(.18,.75,.25,1)"
+      : "none",
+    transformOrigin: "left center",
+    transformStyle: "preserve-3d" as const,
+  };
 
   return (
-    <section id="sketchbook" className="py-32">
-      <div className="max-w-6xl mx-auto">
+    <section className="w-full flex flex-col items-center py-32 select-none">
+      <h2 className="text-3xl mb-10">Sketchbook</h2>
 
-        <div className="relative" style={{ perspective: "2600px" }}>
-          <div className="relative flex gap-10 aspect-[2/1.414]">
-
-            {/* LEFT PAGE */}
-            <div className="w-1/2 bg-neutral-100 overflow-hidden">
-              {spread === -1 ? (
-                <div className="h-full flex items-center justify-center text-neutral-400 text-xl tracking-widest">
-                  SKETCHES
-                </div>
-              ) : (
-                <img
-                  src={`/sketches/sketch${leftSketch}.JPG`}
-                  className="w-full h-full object-cover"
-                />
-              )}
+      {/* BOOK */}
+      <div
+        className="relative"
+        style={{
+          width: "1000px",
+          height: "700px",
+          perspective: "2200px",
+        }}
+      >
+        {/* LEFT PAGE */}
+        <div
+          className="absolute left-0 top-0 h-full bg-[#f5f2ec] shadow-inner"
+          style={{ width: "48%" }}
+        >
+          {leftPage ? (
+            <img
+              src={leftPage}
+              className="w-full h-full object-contain"
+              draggable={false}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-4xl tracking-widest">
+              SKETCHES
             </div>
+          )}
+        </div>
 
-            {/* RIGHT PAGE (STATIC) */}
-            <div className="w-1/2 bg-white overflow-hidden">
-              {rightSketch <= TOTAL && (
-                <img
-                  src={`/sketches/sketch${rightSketch}.JPG`}
-                  className="w-full h-full object-cover"
-                />
-              )}
-            </div>
+        {/* SPINE GAP */}
+        <div
+          className="absolute top-0 h-full"
+          style={{
+            left: "48%",
+            width: "4%",
+          }}
+        />
 
-            {/* FLIPPING PAGE */}
-            {canGoNext && (
-              <div
-                onMouseDown={onMouseDown}
-                onMouseMove={onMouseMove}
-                onMouseUp={onMouseUp}
-                onMouseLeave={onMouseUp}
-                className="absolute top-0 right-0 w-1/2 h-full cursor-grab active:cursor-grabbing"
-                style={{
-                  transformStyle: "preserve-3d",
-                  transform: `
-                    rotateY(${rotateY}deg)
-                    skewY(${-skewY}deg)
-                  `,
-                  transition: isDragging
-                    ? "none"
-                    : "transform 0.9s cubic-bezier(.25,.8,.25,1)",
-                  transformOrigin: "left center",
-                }}
-              >
-                {/* FRONT */}
-                <img
-                  src={`/sketches/sketch${rightSketch}.JPG`}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{ backfaceVisibility: "hidden" }}
-                />
-
-                {/* BACK */}
-                {rightSketch + 1 <= TOTAL && (
-                  <img
-                    src={`/sketches/sketch${rightSketch + 1}.JPG`}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    style={{
-                      transform: "rotateY(180deg)",
-                      backfaceVisibility: "hidden",
-                    }}
-                  />
-                )}
-
-                {/* PAPER SHADOW */}
-                <div
-                  className="absolute inset-0 pointer-events-none"
-                  style={{
-                    background: `linear-gradient(
-                      to left,
-                      rgba(0,0,0,${shadowOpacity}),
-                      transparent 60%
-                    )`,
-                  }}
-                />
-              </div>
-            )}
+        {/* RIGHT STATIC PAGE */}
+        {!isFlipping && (
+          <div
+            className="absolute right-0 top-0 h-full bg-[#f5f2ec]"
+            style={{ width: "48%" }}
+          >
+            <img
+              src={rightPage}
+              className="w-full h-full object-contain"
+              draggable={false}
+            />
           </div>
-        </div>
+        )}
 
-        {/* CONTROLS */}
-        <div className="flex justify-center gap-10 mt-10">
-          <button
-            onClick={goPrev}
-            disabled={!canGoPrev}
-            className="p-3 text-muted-foreground hover:text-foreground disabled:opacity-30"
+        {/* FLIPPING PAGE */}
+        {canGoNext && (
+          <div
+            onMouseDown={onMouseDown}
+            className="absolute right-0 top-0 h-full bg-[#f5f2ec] cursor-grab active:cursor-grabbing"
+            style={{
+              width: "48%",
+              ...flipStyle,
+            }}
           >
-            <ChevronLeft size={28} />
-          </button>
+            <img
+              src={rightPage}
+              className="w-full h-full object-contain"
+              draggable={false}
+            />
+          </div>
+        )}
+      </div>
 
-          <button
-            onClick={goNext}
-            disabled={!canGoNext}
-            className="p-3 text-muted-foreground hover:text-foreground disabled:opacity-30"
-          >
-            <ChevronRight size={28} />
-          </button>
-        </div>
-
+      {/* CONTROLS */}
+      <div className="flex gap-6 mt-10">
+        <button
+          onClick={triggerPrev}
+          disabled={!canGoPrev}
+          className="px-4 py-2 border disabled:opacity-30"
+        >
+          ←
+        </button>
+        <button
+          onClick={triggerNext}
+          disabled={!canGoNext}
+          className="px-4 py-2 border disabled:opacity-30"
+        >
+          →
+        </button>
       </div>
     </section>
   );
