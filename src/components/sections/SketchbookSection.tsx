@@ -138,13 +138,9 @@ export default function SketchbookSection() {
         : null
       : leftImage;
 
-  // Sağ flip ön ve arka
-  const rightFrontOpacity = flipping === "next" ? (flipProgress < 50 ? 1 : 0) : 1;
-  const rightBackOpacity = flipping === "next" ? (flipProgress >= 50 ? 1 : 0) : 0;
+  // Sağ flip back image
   const rightBackImage =
-    flipProgress >= 50 && page + 2 <= TOTAL
-      ? `/sketches/sketch${page + 2}.JPG`
-      : `/sketches/sketch${page + 1}.JPG`;
+    page + 2 <= TOTAL ? `/sketches/sketch${page + 2}.JPG` : `/sketches/sketch${page + 1}.JPG`;
 
   return (
     <section className="py-32 flex justify-center">
@@ -212,7 +208,6 @@ export default function SketchbookSection() {
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-                opacity: rightFrontOpacity,
               }}
             />
             <img
@@ -225,7 +220,6 @@ export default function SketchbookSection() {
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-                opacity: rightBackOpacity,
               }}
             />
           </div>
