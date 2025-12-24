@@ -104,7 +104,10 @@ export default function SketchbookSection() {
     height: "100%",
     transformOrigin: "0% center",
     transformStyle: "preserve-3d",
-    transform: flipping === "next" ? `rotateY(${(flipProgress / 100) * -180}deg)` : "rotateY(0deg)",
+    transform:
+      flipping === "next"
+        ? `rotateY(${(flipProgress / 100) * -180}deg)`
+        : "rotateY(0deg)",
     transition: flipping === "none" ? "none" : undefined,
     zIndex: 6,
   };
@@ -117,7 +120,10 @@ export default function SketchbookSection() {
     height: "100%",
     transformOrigin: "100% center",
     transformStyle: "preserve-3d",
-    transform: flipping === "prev" ? `rotateY(${(flipProgress / 100) * 180}deg)` : "rotateY(0deg)",
+    transform:
+      flipping === "prev"
+        ? `rotateY(${(flipProgress / 100) * 180}deg)`
+        : "rotateY(0deg)",
     transition: flipping === "none" ? "none" : undefined,
     zIndex: 6,
   };
@@ -128,8 +134,18 @@ export default function SketchbookSection() {
       ? `/sketches/sketch${page + 2}.JPG`
       : leftImage;
 
-  const rightFrontOpacity = flipping === "next" ? (flipProgress < 50 ? 1 : 0) : 1;
-  const rightBackOpacity = flipping === "next" ? (flipProgress >= 50 ? 1 : 0) : 0;
+  const rightFrontOpacity =
+    flipping === "next"
+      ? flipProgress < 50
+        ? 1
+        : 0
+      : 1;
+  const rightBackOpacity =
+    flipping === "next"
+      ? flipProgress >= 50
+        ? 1
+        : 0
+      : 0;
 
   return (
     <section className="py-32 flex justify-center">
