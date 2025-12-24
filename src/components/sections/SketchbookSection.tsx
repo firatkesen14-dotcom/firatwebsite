@@ -78,6 +78,7 @@ export default function SketchbookSection() {
   const rightImage = page === 0 ? `/sketches/sketch1.JPG` : `/sketches/sketch${page + 1}.JPG`;
   const nextRightImage = page + 3 <= TOTAL ? `/sketches/sketch${page + 3}.JPG` : null;
   const prevLeftImage = page - 1 >= 0 ? `/sketches/sketch${page - 1}.JPG` : null;
+  const prevPrevLeftImage = page - 2 >= 0 ? `/sketches/sketch${page - 2}.JPG` : null;
 
   /* ---------------- STYLES ---------------- */
   const rightFlipStyle: React.CSSProperties = {
@@ -106,8 +107,8 @@ export default function SketchbookSection() {
     zIndex: 6,
   };
 
-  /* ---------------- FADE & ZINDEX CONTROL ---------------- */
-  // Flip sırasında arkada duran sayfa hep alt katmanda
+  /* ---------------- FADE & ZINDEX ---------------- */
+  // Sol sayfa geri flipte anında bir önceki sayfayı gösterir
   const leftFadeStyle: React.CSSProperties = {
     opacity: flipping === "next" ? 0 : 1,
     transition: "opacity 2.4s ease",
@@ -119,6 +120,8 @@ export default function SketchbookSection() {
     transition: "opacity 2.4s ease",
     zIndex: flipping === "prev" ? 2 : 4,
   };
+
+  const leftDisplayImage = flipping === "prev" && prevPrevLeftImage ? prevPrevLeftImage : leftImage;
 
   return (
     <section className="py-32 flex justify-center">
@@ -134,7 +137,7 @@ export default function SketchbookSection() {
       >
         {/* LEFT PAGE */}
         <div style={{ position: "absolute", left: 0, width: "50%", height: "100%", background: "#f5f2ec", zIndex: 1 }}>
-          {leftImage && <img src={leftImage} style={{ width: "100%", height: "100%", objectFit: "cover", ...leftFadeStyle }} />}
+          {leftDisplayImage && <img src={leftDisplayImage} style={{ width: "100%", height: "100%", objectFit: "cover", ...leftFadeStyle }} />}
         </div>
 
         {/* RIGHT PAGE */}
