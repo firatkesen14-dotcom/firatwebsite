@@ -1,121 +1,132 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const TOTAL_PAGES = 30;
-const sketchPages = Array.from({ length: TOTAL_PAGES }, (_, i) => ({
-  id: i + 1,
-  label: `Sketch ${i + 1}`,
-}));
 
-const SketchbookSection = () => {
-  const [currentPage, setCurrentPage] = useState(0);
+export default function SketchbookSection() {
+  const [page, setPage] = useState(0);
   const [isFlipping, setIsFlipping] = useState(false);
-  const [flipDirection, setFlipDirection] = useState<"left" | "right" | null>(null);
 
-  const goToPage = useCallback(
-    (direction: "left" | "right") => {
-      if (isFlipping) return;
+  const nextPage = () => {
+    if (isFlipping || page >= TOTAL_PAGES - 1) return;
+    setIsFlipping(true);
+    setTimeout(() => {
+      setPage(p => p + 1);
+      setIsFlipping(false);
+    }, 1100);
+  };
 
-      let newPage =
-        direction === "right"
-          ? Math.min(currentPage + 2, TOTAL_PAGES - 1)
-          : Math.max(currentPage - 2, 0);
-
-      if (newPage === currentPage) return;
-
-      setFlipDirection(direction);
-      setIsFlipping(true);
-
-      setTimeout(() => {
-        setCurrentPage(newPage);
-        setIsFlipping(false);
-        setFlipDirection(null);
-      }, 800); // animasyon süresi
-    },
-    [currentPage, isFlipping]
-  );
-
-  const handlePrevious = () => goToPage("left");
-  const handleNext = () => goToPage("right");
+  const prevPage = () => {
+    if (isFlipping || page <= 0) return;
+    setIsFlipping(true);
+    setTimeout(() => {
+      setPage(p => p - 1);
+      setIsFlipping(false);
+    }, 1100);
+  };
 
   return (
-    <section id="sketchbook" className="py-24 md:py-32 border-t border-border/50">
-      <div className="container-wide">
-        {/* Section Header */}
-        <header className="mb-12 text-center">
-          <h2 className="text-4xl md:text-5xl font-light text-foreground tracking-tight mb-4">
-            Sketchbook
-          </h2>
-          <p className="text-muted-foreground">
-            My design explorations and visual studies
-          </p>
-        </header>
+    <section className="py-32 border-t border-border/50">
+      <div className="max-w-6xl mx-auto">
 
-        {/* Sketchbook Container */}
-        <div className="relative max-w-5xl mx-auto flex justify-center">
-          {/* Book Spread */}
-          <div
-            className="relative flex w-full max-w-4xl aspect-[2/1.414]"
-            style={{ perspective: "1500px" }}
-          >
-            {/* Left Page */}
-            <img
-              src={`/sketches/sketch${currentPage + 1}.JPG`}
-              alt={`Sketch ${currentPage + 1}`}
-              className={`absolute left-0 w-1/2 h-full object-cover rounded-sm shadow-2xl transition-transform duration-800 ease-in-out transform ${
-                isFlipping && flipDirection === "right" ? "-rotate-y-[180deg] scale-x-[0.98]" : ""
-              }`}
-              style={{ transformOrigin: "right center", backfaceVisibility: "hidden" }}
-            />
+        {/* BOOK */}
+        <div
+          className="relative mx-auto flex justify-center"
+          style={{ perspective: "2000px" }}
+        >
+          <div className="relative flex gap-6 w-full max-w-5xl aspect-[2/1.414]">
 
-            {/* Right Page */}
-            {currentPage + 2 < TOTAL_PAGES && (
+            {/* LEFT PAGE */}
+            <div className="relative w-1/2 h-full rounded-sm overflow-hidden bg-neutral-100 shadow-inner">
+              {page === 0 ? (
+                /* COVER */
+                <div className="flex items-center justify-center h-full text-neutral-400 text-xl tracking-wide">
+                  sketches
+                </div>
+              ) : (
+                <img
+                  src={`/sketches/sketch${page}.JPG`}
+                  className="w-full h-full object-cover"
+                  alt=""
+                />
+              )}
+            </div>
+
+            {/* RIGHT PAGE */}
+            <div className="relative w-1/2 h-full rounded-sm overflow-hidden shadow-xl bg-white">
               <img
-                src={`/sketches/sketch${currentPage + 2}.JPG`}
-                alt={`Sketch ${currentPage + 2}`}
-                className={`absolute right-0 w-1/2 h-full object-cover rounded-sm shadow-2xl transition-opacity duration-800 ease-in-out ${
-                  isFlipping && flipDirection === "right" ? "opacity-100" : "opacity-100"
-                }`}
-                style={{ backfaceVisibility: "hidden" }}
+                src={`/sketches/sketch${page + 1}.JPG`}
+                className="w-full h-full object-cover"
+                alt=""
               />
-            )}
+
+              {/* FLIP PAGE */}
+              {isFlipping && (
+                <div
+                  className="absolute inset-0 origin-left"
+                  style={{
+                    transformStyle: "preserve-3d",
+                    animation: "pageFlip 1.1s cubic-bezier(0.25, 0.8, 0.3, 1)"
+                  }}
+                >
+                  {/* FRONT */}
+                  <img
+                    src={`/sketches/sketch${page + 1}.JPG`}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{ backfaceVisibility: "hidden" }}
+                  />
+
+                  {/* BACK */}
+                  <img
+                    src={`/sketches/sketch${page + 2}.JPG`}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{
+                      transform: "rotateY(180deg)",
+                      backfaceVisibility: "hidden"
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Navigation */}
-        <div className="flex items-center justify-center gap-8 mt-8">
+        {/* NAV */}
+        <div className="flex justify-center gap-10 mt-10">
           <button
-            onClick={handlePrevious}
-            disabled={currentPage === 0 || isFlipping}
-            className="p-3 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300"
-            aria-label="Previous pages"
+            onClick={prevPage}
+            disabled={page === 0 || isFlipping}
+            className="text-muted-foreground hover:text-foreground disabled:opacity-30"
           >
-            <ChevronLeft size={24} />
+            <ChevronLeft size={28} />
           </button>
-
           <button
-            onClick={handleNext}
-            disabled={currentPage >= TOTAL_PAGES - 2 || isFlipping}
-            className="p-3 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300"
-            aria-label="Next pages"
+            onClick={nextPage}
+            disabled={page >= TOTAL_PAGES - 1 || isFlipping}
+            className="text-muted-foreground hover:text-foreground disabled:opacity-30"
           >
-            <ChevronRight size={24} />
+            <ChevronRight size={28} />
           </button>
         </div>
       </div>
 
-      {/* Page Flip Animations */}
+      {/* ANIMATION */}
       <style>{`
-        @keyframes flipRight {
-          0% { transform: rotateY(0deg); }
-          100% { transform: rotateY(-180deg); }
-        }
-        .-rotate-y-[180deg] {
-          transform: rotateY(-180deg);
+        @keyframes pageFlip {
+          0% {
+            transform: rotateY(0deg);
+          }
+          40% {
+            transform: rotateY(-60deg) translateX(-10px);
+          }
+          70% {
+            transform: rotateY(-120deg) translateX(-20px);
+          }
+          100% {
+            transform: rotateY(-180deg) translateX(-30px);
+          }
         }
       `}</style>
     </section>
   );
-};
-
-export default SketchbookSection;
+}
