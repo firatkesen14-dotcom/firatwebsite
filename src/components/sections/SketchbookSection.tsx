@@ -6,6 +6,7 @@ export default function SketchbookSection() {
   const [page, setPage] = useState(0);
   const [flipping, setFlipping] = useState<"none" | "next" | "prev">("none");
   const [dragging, setDragging] = useState(false);
+  const [flipProgress, setFlipProgress] = useState(0); // 0-100 arası ilerleme
 
   const startX = useRef(0);
   const bookRef = useRef<HTMLDivElement>(null);
@@ -28,10 +29,12 @@ export default function SketchbookSection() {
 
     if (e.clientX > midX && canNext) {
       setFlipping("next");
+      setFlipProgress(0);
     }
 
     if (e.clientX < midX && canPrev) {
       setFlipping("prev");
+      setFlipProgress(0);
     }
   };
 
@@ -66,11 +69,23 @@ export default function SketchbookSection() {
   /* ---------------- FLIP END ---------------- */
   const finalizeFlip = (dir: "next" | "prev") => {
     setFlipping(dir);
+    const duration = 2400;
+    const start = performance.now();
 
-    setTimeout(() => {
-      setPage((p) => (dir === "next" ? p + 2 : p - 2));
-      setFlipping("none");
-    }, 2400); // flip süresi
+    const step = (time: number) => {
+      const progress = Math.min((time - start) / duration, 1);
+      setFlipProgress(progress * 100);
+
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        setPage((p) => (dir === "next" ? p + 2 : p - 2));
+        setFlipping("none");
+        setFlipProgress(0);
+      }
+    };
+
+    requestAnimationFrame(step);
   };
 
   /* ---------------- IMAGES ---------------- */
@@ -89,7 +104,7 @@ export default function SketchbookSection() {
     height: "100%",
     transformOrigin: "0% center",
     transformStyle: "preserve-3d",
-    transform: flipping === "next" ? "rotateY(-180deg)" : "rotateY(0deg)",
+    transform: flipping === "next" ? `rotateY(-180deg)` : "rotateY(0deg)",
     transition: flipping === "next" ? "transform 2.4s cubic-bezier(.22,.61,.36,1)" : "none",
     zIndex: 6,
   };
@@ -108,20 +123,25 @@ export default function SketchbookSection() {
   };
 
   /* ---------------- FADE & ZINDEX ---------------- */
-  // Sol sayfa geri flipte anında bir önceki sayfayı gösterir
+  // İleri flip: soldaki sayfa 90° geçince opacity değişiyor
   const leftFadeStyle: React.CSSProperties = {
-    opacity: flipping === "next" ? 0 : 1,
-    transition: "opacity 2.4s ease",
+    opacity: flipping === "next" && flipProgress > 50 ? 0 : 1,
+    transition: "opacity 0.2s ease",
     zIndex: flipping === "next" ? 2 : 4,
   };
 
   const rightFadeStyle: React.CSSProperties = {
-    opacity: flipping === "prev" ? 0 : 1,
-    transition: "opacity 2.4s ease",
+    opacity: flipping === "prev" && flipProgress > 50 ? 0 : 1,
+    transition: "opacity 0.2s ease",
     zIndex: flipping === "prev" ? 2 : 4,
   };
 
-  const leftDisplayImage = flipping === "prev" && prevPrevLeftImage ? prevPrevLeftImage : leftImage;
+  const leftDisplayImage =
+    flipping === "prev" && prevPrevLeftImage
+      ? prevPrevLeftImage
+      : flipping === "next" && flipProgress > 50 && page + 2 <= TOTAL
+      ? `/sketches/sketch${page + 2}.JPG`
+      : leftImage;
 
   return (
     <section className="py-32 flex justify-center">
