@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 const TOTAL = 30;
 
 export default function SketchbookSection() {
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(0); // sol sayfa index
   const [flipping, setFlipping] = useState<"none" | "next" | "prev">("none");
   const [dragging, setDragging] = useState(false);
 
@@ -39,7 +39,6 @@ export default function SketchbookSection() {
   useEffect(() => {
     const move = (e: MouseEvent) => {
       if (!dragging || flipping === "none") return;
-
       const delta = e.clientX - startX.current;
 
       if (flipping === "next" && delta < -16) {
@@ -66,30 +65,20 @@ export default function SketchbookSection() {
 
   /* ---------------- FLIP END ---------------- */
   const finalizeFlip = (dir: "next" | "prev") => {
+    setFlipping(dir);
+
+    // 2.4s flip süresi
     setTimeout(() => {
-      setPage(p => (dir === "next" ? p + 2 : p - 2));
+      setPage((p) => (dir === "next" ? p + 2 : p - 2));
       setFlipping("none");
     }, 2400);
   };
 
   /* ---------------- IMAGES ---------------- */
-  const leftImage =
-    page === 0 ? null : `/sketches/sketch${page}.JPG`;
-
-  const rightImage =
-    page === 0
-      ? `/sketches/sketch1.JPG`
-      : `/sketches/sketch${page + 1}.JPG`;
-
-  const nextRightImage =
-    page + 3 <= TOTAL
-      ? `/sketches/sketch${page + 3}.JPG`
-      : null;
-
-  const prevLeftImage =
-    page - 1 >= 0
-      ? `/sketches/sketch${page - 1}.JPG`
-      : null;
+  const leftImage = page === 0 ? null : `/sketches/sketch${page}.JPG`;
+  const rightImage = page === 0 ? `/sketches/sketch1.JPG` : `/sketches/sketch${page + 1}.JPG`;
+  const nextRightImage = page + 3 <= TOTAL ? `/sketches/sketch${page + 3}.JPG` : null;
+  const prevLeftImage = page - 1 >= 0 ? `/sketches/sketch${page - 1}.JPG` : null;
 
   /* ---------------- STYLES ---------------- */
   const rightFlipStyle: React.CSSProperties = {
@@ -100,12 +89,8 @@ export default function SketchbookSection() {
     height: "100%",
     transformOrigin: "0% center",
     transformStyle: "preserve-3d",
-    transform:
-      flipping === "next" ? "rotateY(-180deg)" : "rotateY(0deg)",
-    transition:
-      flipping === "next"
-        ? "transform 2.4s cubic-bezier(.22,.61,.36,1)"
-        : "none",
+    transform: flipping === "next" ? "rotateY(-180deg)" : "rotateY(0deg)",
+    transition: flipping === "next" ? "transform 2.4s cubic-bezier(.22,.61,.36,1)" : "none",
     zIndex: 6,
   };
 
@@ -117,12 +102,8 @@ export default function SketchbookSection() {
     height: "100%",
     transformOrigin: "100% center",
     transformStyle: "preserve-3d",
-    transform:
-      flipping === "prev" ? "rotateY(180deg)" : "rotateY(0deg)",
-    transition:
-      flipping === "prev"
-        ? "transform 2.4s cubic-bezier(.22,.61,.36,1)"
-        : "none",
+    transform: flipping === "prev" ? "rotateY(180deg)" : "rotateY(0deg)",
+    transition: flipping === "prev" ? "transform 2.4s cubic-bezier(.22,.61,.36,1)" : "none",
     zIndex: 6,
   };
 
