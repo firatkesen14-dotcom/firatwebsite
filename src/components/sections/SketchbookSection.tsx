@@ -4,10 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 const TOTAL = 30;
 
 export default function SketchbookSection() {
-  // spread = sol sayfadaki sketch index (1-based)
-  // -1 özel durum: kapak
   const [spread, setSpread] = useState(-1);
-
   const [dragX, setDragX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const startX = useRef(0);
@@ -18,7 +15,7 @@ export default function SketchbookSection() {
   const canGoNext = rightSketch < TOTAL;
   const canGoPrev = spread > -1;
 
-  /* ---------------- mouse drag ---------------- */
+  /* ---------------- drag ---------------- */
 
   const onMouseDown = (e: React.MouseEvent) => {
     if (!canGoNext) return;
@@ -43,23 +40,23 @@ export default function SketchbookSection() {
     setIsDragging(false);
   };
 
-  const rotation = Math.max(-180, (dragX / 280) * 180);
+  /* ---------------- paper math ---------------- */
+
+  const progress = Math.min(1, Math.abs(dragX) / 260);
+  const rotateY = -180 * progress;
+  const skewY = 12 * progress;
+  const shadowOpacity = 0.25 * progress;
 
   /* ---------------- arrows ---------------- */
 
-  const goNext = () => {
-    if (canGoNext) setSpread(s => s + 2);
-  };
-
-  const goPrev = () => {
-    if (canGoPrev) setSpread(s => Math.max(-1, s - 2));
-  };
+  const goNext = () => canGoNext && setSpread(s => s + 2);
+  const goPrev = () => canGoPrev && setSpread(s => Math.max(-1, s - 2));
 
   return (
     <section id="sketchbook" className="py-32">
       <div className="max-w-6xl mx-auto">
 
-        <div className="relative" style={{ perspective: "2400px" }}>
+        <div className="relative" style={{ perspective: "2600px" }}>
           <div className="relative flex gap-10 aspect-[2/1.414]">
 
             {/* LEFT PAGE */}
@@ -96,10 +93,13 @@ export default function SketchbookSection() {
                 className="absolute top-0 right-0 w-1/2 h-full cursor-grab active:cursor-grabbing"
                 style={{
                   transformStyle: "preserve-3d",
-                  transform: `rotateY(${rotation}deg)`,
+                  transform: `
+                    rotateY(${rotateY}deg)
+                    skewY(${-skewY}deg)
+                  `,
                   transition: isDragging
                     ? "none"
-                    : "transform 0.8s cubic-bezier(.4,0,.2,1)",
+                    : "transform 0.9s cubic-bezier(.25,.8,.25,1)",
                   transformOrigin: "left center",
                 }}
               >
@@ -121,6 +121,18 @@ export default function SketchbookSection() {
                     }}
                   />
                 )}
+
+                {/* PAPER SHADOW */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: `linear-gradient(
+                      to left,
+                      rgba(0,0,0,${shadowOpacity}),
+                      transparent 60%
+                    )`,
+                  }}
+                />
               </div>
             )}
           </div>
