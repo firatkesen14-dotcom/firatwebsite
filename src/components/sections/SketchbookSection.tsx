@@ -1,17 +1,15 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-type Props = {
-  sketches: string[];
-};
+const TOTAL = 30;
 
-export default function SketchbookSection({ sketches }: Props) {
+export default function SketchbookSection() {
   const [page, setPage] = useState(0);
   const [isFlipping, setIsFlipping] = useState(false);
   const [direction, setDirection] = useState<1 | -1>(1);
 
   const startX = useRef(0);
 
-  const canGoForward = page + 2 < sketches.length;
+  const canGoForward = page + 2 < TOTAL;
   const canGoBack = page - 2 >= 0;
 
   function startFlip(dir: 1 | -1) {
@@ -37,13 +35,13 @@ export default function SketchbookSection({ sketches }: Props) {
     const onMove = (ev: MouseEvent) => {
       const delta = ev.clientX - startX.current;
 
-      // ileri drag → sağ sayfa → sola
+      // ileri → sağ sayfa → sola
       if (zone === "right" && delta < -30) {
         cleanup();
         startFlip(1);
       }
 
-      // geri drag → sol sayfa → sağa
+      // geri → sol sayfa → sağa
       if (zone === "left" && delta > 30) {
         cleanup();
         startFlip(-1);
@@ -59,30 +57,15 @@ export default function SketchbookSection({ sketches }: Props) {
     window.addEventListener("mouseup", cleanup);
   }
 
-  // =========================
-  // GÖRSEL INDEX HESAPLARI
-  // =========================
-
-  const leftIndex =
-    direction === 1 ? page : page - 2;
-
-  const rightIndex =
-    direction === 1 ? page + 1 : page - 1;
-
-  const backIndex =
-    direction === 1 ? page + 2 : page - 3;
-
   return (
-    <div className="sketchbook">
+    <section className="sketchbook">
 
       {/* SOL SAYFA */}
       <div
         className="page left"
         onMouseDown={e => onMouseDown(e, "left")}
       >
-        {sketches[leftIndex] && (
-          <img src={sketches[leftIndex]} />
-        )}
+        <img src={`/sketches/${page}.jpg`} />
       </div>
 
       {/* SAĞ SAYFA */}
@@ -90,22 +73,21 @@ export default function SketchbookSection({ sketches }: Props) {
         className="page right"
         onMouseDown={e => onMouseDown(e, "right")}
       >
-        {sketches[rightIndex] && (
-          <img src={sketches[rightIndex]} />
-        )}
+        <img src={`/sketches/${page + 1}.jpg`} />
       </div>
 
-      {/* FLIP SAYFASI */}
+      {/* FLIP */}
       {isFlipping && (
         <div
           className={`flip ${direction === 1 ? "forward" : "backward"}`}
         >
-          <img src={sketches[rightIndex]} />
-          {sketches[backIndex] && (
-            <img className="back" src={sketches[backIndex]} />
-          )}
+          <img src={`/sketches/${page + 1}.jpg`} />
+          <img
+            className="back"
+            src={`/sketches/${page + 2}.jpg`}
+          />
         </div>
       )}
-    </div>
+    </section>
   );
 }
