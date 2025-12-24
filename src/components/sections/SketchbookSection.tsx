@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 const TOTAL = 30;
 
 export default function SketchbookSection() {
-  const [page, setPage] = useState(0); // sol sayfa index
+  const [page, setPage] = useState(0);
   const [flipping, setFlipping] = useState<"none" | "next" | "prev">("none");
   const [dragging, setDragging] = useState(false);
 
@@ -13,7 +13,7 @@ export default function SketchbookSection() {
   const canNext = page + 2 < TOTAL;
   const canPrev = page - 2 >= 0;
 
-  /* ---------------- DRAG START ---------------- */
+  /* ---------------- DRAG ---------------- */
   const onMouseDown = (e: React.MouseEvent) => {
     if (flipping !== "none") return;
 
@@ -67,11 +67,10 @@ export default function SketchbookSection() {
   const finalizeFlip = (dir: "next" | "prev") => {
     setFlipping(dir);
 
-    // 2.4s flip süresi
     setTimeout(() => {
       setPage((p) => (dir === "next" ? p + 2 : p - 2));
       setFlipping("none");
-    }, 2400);
+    }, 2400); // flip süresi
   };
 
   /* ---------------- IMAGES ---------------- */
@@ -107,6 +106,17 @@ export default function SketchbookSection() {
     zIndex: 6,
   };
 
+  /* ---------------- FADE CONTROL ---------------- */
+  const leftFadeStyle: React.CSSProperties = {
+    opacity: flipping === "next" ? 0 : 1,
+    transition: "opacity 2.4s ease",
+  };
+
+  const rightFadeStyle: React.CSSProperties = {
+    opacity: flipping === "prev" ? 0 : 1,
+    transition: "opacity 2.4s ease",
+  };
+
   return (
     <section className="py-32 flex justify-center">
       <div
@@ -121,12 +131,12 @@ export default function SketchbookSection() {
       >
         {/* LEFT PAGE */}
         <div style={{ position: "absolute", left: 0, width: "50%", height: "100%", background: "#f5f2ec", zIndex: 1 }}>
-          {leftImage && <img src={leftImage} style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
+          {leftImage && <img src={leftImage} style={{ width: "100%", height: "100%", objectFit: "cover", ...leftFadeStyle }} />}
         </div>
 
         {/* RIGHT PAGE */}
         <div style={{ position: "absolute", right: 0, width: "50%", height: "100%", background: "#f5f2ec", zIndex: 1 }}>
-          {nextRightImage && <img src={nextRightImage} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: flipping === "next" ? 1 : 0 }} />}
+          {nextRightImage && <img src={nextRightImage} style={{ width: "100%", height: "100%", objectFit: "cover", ...rightFadeStyle }} />}
         </div>
 
         {/* RIGHT FLIP */}
