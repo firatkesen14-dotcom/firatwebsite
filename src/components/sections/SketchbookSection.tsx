@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 
 const TOTAL = 30;
+const DOT_COUNT = 5;
 
 export default function SketchbookSection() {
-  const [index, setIndex] = useState(0); // 0: kapak + 1
+  const [index, setIndex] = useState(0);
   const [flipping, setFlipping] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [intent, setIntent] = useState(false);
 
   const startX = useRef(0);
-
   const canNext = index < TOTAL - 1;
+  const canPrev = index > 0;
 
   /* ---------------- DRAG ---------------- */
 
@@ -24,18 +25,15 @@ export default function SketchbookSection() {
   useEffect(() => {
     const move = (e: MouseEvent) => {
       if (!dragging) return;
-      if (e.clientX - startX.current < -10) {
-        setIntent(true); // sadece niyet
+      if (e.clientX - startX.current < -12) {
+        setIntent(true);
       }
     };
 
     const up = () => {
       if (!dragging) return;
       setDragging(false);
-
-      if (intent) {
-        startFlip();
-      }
+      if (intent) startFlip(1);
     };
 
     window.addEventListener("mousemove", move);
@@ -48,17 +46,21 @@ export default function SketchbookSection() {
 
   /* ---------------- FLIP ---------------- */
 
-  const startFlip = () => {
+  const startFlip = (dir: 1 | -1) => {
     if (flipping) return;
     setFlipping(true);
 
     setTimeout(() => {
-      setIndex(i => Math.min(i + 2, TOTAL - 1));
+      setIndex(i =>
+        dir === 1
+          ? Math.min(i + 2, TOTAL - 1)
+          : Math.max(i - 2, 0)
+      );
       setFlipping(false);
-    }, 2600); // biraz daha yavaş
+    }, 2600);
   };
 
-  /* ---------------- IMAGE PATHS ---------------- */
+  /* ---------------- IMAGES ---------------- */
 
   const leftImage =
     index === 0 ? null : `/sketches/sketch${index}.JPG`;
@@ -68,24 +70,26 @@ export default function SketchbookSection() {
       ? `/sketches/sketch1.JPG`
       : `/sketches/sketch${index + 1}.JPG`;
 
-  const backImage =
-    `/sketches/sketch${index + 2}.JPG`;
-
-  const nextRight =
-    `/sketches/sketch${index + 3}.JPG`;
+  const backImage = `/sketches/sketch${index + 2}.JPG`;
+  const nextRight = `/sketches/sketch${index + 3}.JPG`;
 
   /* ---------------- STYLES ---------------- */
 
   const flipStyle = {
     transform: flipping
-      ? "rotateY(-180deg) translateX(-8px)"
+      ? "rotateY(-180deg)"
       : "rotateY(0deg)",
     transition: flipping
       ? "transform 2.6s cubic-bezier(.22,.61,.36,1)"
       : "none",
-    transformOrigin: "left center",
+    transformOrigin: "50% center", // 🔥 AKS ORTADA
     transformStyle: "preserve-3d" as const,
   };
+
+  /* ---------------- DOT LOGIC ---------------- */
+
+  const progress = Math.floor(index / 2);
+  const dots = Array.from({ length: DOT_COUNT }, (_, i) => i);
 
   return (
     <section className="w-full py-32 flex flex-col items-center">
@@ -123,7 +127,7 @@ export default function SketchbookSection() {
           )}
         </div>
 
-        {/* SPINE */}
+        {/* SPINE GAP */}
         <div
           style={{
             position: "absolute",
@@ -133,7 +137,7 @@ export default function SketchbookSection() {
           }}
         />
 
-        {/* RIGHT STATIC (NEW PAGE FADE IN) */}
+        {/* RIGHT STATIC */}
         {!flipping && (
           <div
             style={{
@@ -152,7 +156,7 @@ export default function SketchbookSection() {
           </div>
         )}
 
-        {/* NEXT PAGE (FADE) */}
+        {/* NEXT PAGE FADE */}
         {flipping && (
           <div
             style={{
@@ -179,7 +183,7 @@ export default function SketchbookSection() {
             onMouseDown={onMouseDown}
             style={{
               position: "absolute",
-              right: 0,
+              left: "50%", // 🔥 ortadan başlıyor
               width: "48%",
               height: "100%",
               background: "#f5f2ec",
@@ -187,14 +191,11 @@ export default function SketchbookSection() {
               ...flipStyle,
             }}
           >
-            {/* FRONT */}
             <img
               src={rightImage}
               className="absolute w-full h-full object-contain"
               draggable={false}
             />
-
-            {/* BACK */}
             <img
               src={backImage}
               className="absolute w-full h-full object-contain"
@@ -208,13 +209,43 @@ export default function SketchbookSection() {
         )}
       </div>
 
-      <style>
-        {`
-          @keyframes fadeIn {
-            to { opacity: 1; }
-          }
-        `}
-      </style>
+      {/* NAVIGATION */}
+      <div className="flex items-center gap-6 mt-12 text-lg select-none">
+        <button
+          onClick={() => canPrev && startFlip(-1)}
+          className="opacity-60 hover:opacity-100"
+        >
+          &lt;
+        </button>
+
+        <div className="flex gap-3">
+          {dots.map(i => (
+            <span
+              key={i}
+              className={`w-3 h-3 rounded-full transition ${
+                i === 0
+                  ? "opacity-30"
+                  : i <= progress
+                  ? "bg-black"
+                  : "bg-black/30"
+              }`}
+            />
+          ))}
+        </div>
+
+        <button
+          onClick={() => canNext && startFlip(1)}
+          className="opacity-60 hover:opacity-100"
+        >
+          &gt;
+        </button>
+      </div>
+
+      <style>{`
+        @keyframes fadeIn {
+          to { opacity: 1; }
+        }
+      `}</style>
     </section>
   );
 }
