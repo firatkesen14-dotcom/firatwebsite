@@ -6,7 +6,7 @@ export default function SketchbookSection() {
   const [page, setPage] = useState(0);
   const [flipping, setFlipping] = useState<"none" | "next" | "prev">("none");
   const [dragging, setDragging] = useState(false);
-  const [flipProgress, setFlipProgress] = useState(0); // 0-100 arası ilerleme
+  const [flipProgress, setFlipProgress] = useState(0);
 
   const startX = useRef(0);
   const bookRef = useRef<HTMLDivElement>(null);
@@ -94,6 +94,7 @@ export default function SketchbookSection() {
   const prevLeftImage = page - 1 >= 0 ? `/sketches/sketch${page - 1}.JPG` : null;
   const prevPrevLeftImage = page - 2 >= 0 ? `/sketches/sketch${page - 2}.JPG` : null;
   const nextLeftDuringFlip = page + 2 <= TOTAL ? `/sketches/sketch${page + 2}.JPG` : null;
+  const prevLeftDuringFlip = page - 2 >= 0 ? `/sketches/sketch${page - 2}.JPG` : null;
 
   /* ---------------- STYLES ---------------- */
   const rightFlipStyle: React.CSSProperties = {
@@ -123,13 +124,13 @@ export default function SketchbookSection() {
   };
 
   /* ---------------- LEFT PAGE DURUMU ---------------- */
-  // İleri flipte soldaki sayfa flip boyunca sabit, 50% sonrası yeni sayfa görünmeye başlar
-  const leftDisplayImage =
-    flipping === "next" && flipProgress >= 50
-      ? nextLeftDuringFlip || leftImage
-      : flipping === "prev"
-      ? prevPrevLeftImage || leftImage
-      : leftImage;
+  let leftDisplayImage = leftImage;
+  if (flipping === "next" && flipProgress >= 50) {
+    leftDisplayImage = nextLeftDuringFlip || leftImage;
+  }
+  if (flipping === "prev" && flipProgress >= 50) {
+    leftDisplayImage = prevLeftDuringFlip || leftImage;
+  }
 
   return (
     <section className="py-32 flex justify-center">
