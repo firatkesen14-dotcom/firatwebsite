@@ -123,13 +123,12 @@ export default function SketchbookSection() {
   };
 
   /* ---------------- FADE & OPACITY ---------------- */
+  // İleri flip: sağ sayfa ön yüz → arka yüz geçişi
   const rightFrontOpacity = flipping === "next" ? 1 - Math.max(flipProgress - 50, 0) / 50 : 1;
   const rightBackOpacity = flipping === "next" ? Math.min(flipProgress - 50, 50) / 50 : 0;
 
+  // İleri flip: soldaki sayfa fade out
   const leftOpacityDuringNext = flipping === "next" ? Math.max(1 - (flipProgress - 50) / 50, 0) : 1;
-
-  const leftOpacityDuringPrev = flipping === "prev" ? Math.max(flipProgress / 50, 1) : 1;
-  const rightOpacityDuringPrev = flipping === "prev" ? Math.max(1 - flipProgress / 50, 0) : 1;
 
   const leftDisplayImage =
     flipping === "prev" && prevPrevLeftImage
@@ -137,11 +136,6 @@ export default function SketchbookSection() {
       : flipping === "next" && flipProgress >= 50 && page + 2 <= TOTAL
       ? `/sketches/sketch${page + 2}.JPG`
       : leftImage;
-
-  const rightDisplayImage =
-    flipping === "prev" && page - 1 >= 0
-      ? `/sketches/sketch${page - 1}.JPG`
-      : rightImage;
 
   return (
     <section className="py-32 flex justify-center">
@@ -164,7 +158,7 @@ export default function SketchbookSection() {
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-                opacity: flipping === "next" ? leftOpacityDuringNext : 1,
+                opacity: leftOpacityDuringNext,
                 transition: "opacity 0.2s ease",
               }}
             />
@@ -173,18 +167,7 @@ export default function SketchbookSection() {
 
         {/* RIGHT PAGE UNDER FLIP */}
         <div style={{ position: "absolute", right: 0, width: "50%", height: "100%", background: "#f5f2ec", zIndex: 1 }}>
-          {rightDisplayImage && (
-            <img
-              src={rightDisplayImage}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                opacity: flipping === "prev" ? rightOpacityDuringPrev : 1,
-                transition: "opacity 0.2s ease",
-              }}
-            />
-          )}
+          {nextRightImage && <img src={nextRightImage} style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
         </div>
 
         {/* RIGHT FLIP */}
@@ -221,32 +204,9 @@ export default function SketchbookSection() {
         {/* LEFT FLIP */}
         {canPrev && (
           <div style={leftFlipStyle}>
-            <img
-              src={leftImage || ""}
-              style={{
-                position: "absolute",
-                inset: 0,
-                backfaceVisibility: "hidden",
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                opacity: leftOpacityDuringPrev,
-              }}
-            />
+            <img src={leftImage || ""} style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", width: "100%", height: "100%", objectFit: "cover" }} />
             {prevLeftImage && (
-              <img
-                src={prevLeftImage}
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  transform: "rotateY(180deg)",
-                  backfaceVisibility: "hidden",
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  opacity: rightOpacityDuringPrev,
-                }}
-              />
+              <img src={prevLeftImage} style={{ position: "absolute", inset: 0, transform: "rotateY(180deg)", backfaceVisibility: "hidden", width: "100%", height: "100%", objectFit: "cover" }} />
             )}
           </div>
         )}
