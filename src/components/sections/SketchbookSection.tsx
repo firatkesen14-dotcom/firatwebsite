@@ -1,114 +1,118 @@
 import { useEffect, useRef, useState } from "react";
 
-const TOTAL_PAGES = 30;
+const TOTAL = 30;
 
 export default function SketchbookSection() {
-  const [spread, setSpread] = useState(0); // 0: kapak + 1, sonra 2-3, 4-5...
-  const [isFlipping, setIsFlipping] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragLeftIntent, setDragLeftIntent] = useState(false);
+  const [index, setIndex] = useState(0); // 0: kapak + 1
+  const [flipping, setFlipping] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const [intent, setIntent] = useState(false);
 
   const startX = useRef(0);
 
-  const canGoNext = spread < TOTAL_PAGES - 1;
-  const canGoPrev = spread > 0;
+  const canNext = index < TOTAL - 1;
 
-  /* ---------------- MOUSE DRAG LOGIC ---------------- */
+  /* ---------------- DRAG ---------------- */
 
   const onMouseDown = (e: React.MouseEvent) => {
-    if (!canGoNext || isFlipping) return;
+    if (!canNext || flipping) return;
     startX.current = e.clientX;
-    setIsDragging(true);
-    setDragLeftIntent(false);
+    setDragging(true);
+    setIntent(false);
   };
 
   useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      if (!isDragging) return;
-      const delta = e.clientX - startX.current;
-      if (delta < 0) setDragLeftIntent(true); // en ufak sola niyet yeter
-    };
-
-    const onUp = () => {
-      if (!isDragging) return;
-      setIsDragging(false);
-
-      if (dragLeftIntent && canGoNext) {
-        triggerNext();
+    const move = (e: MouseEvent) => {
+      if (!dragging) return;
+      if (e.clientX - startX.current < -10) {
+        setIntent(true); // sadece niyet
       }
     };
 
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
+    const up = () => {
+      if (!dragging) return;
+      setDragging(false);
+
+      if (intent) {
+        startFlip();
+      }
     };
-  }, [isDragging, dragLeftIntent, canGoNext]);
 
-  /* ---------------- PAGE CHANGE ---------------- */
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", up);
+    return () => {
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseup", up);
+    };
+  }, [dragging, intent]);
 
-  const triggerNext = () => {
-    if (isFlipping) return;
-    setIsFlipping(true);
+  /* ---------------- FLIP ---------------- */
+
+  const startFlip = () => {
+    if (flipping) return;
+    setFlipping(true);
 
     setTimeout(() => {
-      setSpread(s => Math.min(s + 2, TOTAL_PAGES - 1));
-      setIsFlipping(false);
-    }, 2200);
-  };
-
-  const triggerPrev = () => {
-    if (isFlipping || !canGoPrev) return;
-    setSpread(s => Math.max(s - 2, 0));
+      setIndex(i => Math.min(i + 2, TOTAL - 1));
+      setFlipping(false);
+    }, 2600); // biraz daha yavaş
   };
 
   /* ---------------- IMAGE PATHS ---------------- */
 
-  const leftPage =
-    spread === 0
-      ? null
-      : `/sketches/sketch${spread}.JPG`;
+  const leftImage =
+    index === 0 ? null : `/sketches/sketch${index}.JPG`;
 
-  const rightPage =
-    spread === 0
+  const rightImage =
+    index === 0
       ? `/sketches/sketch1.JPG`
-      : `/sketches/sketch${spread + 1}.JPG`;
+      : `/sketches/sketch${index + 1}.JPG`;
+
+  const backImage =
+    `/sketches/sketch${index + 2}.JPG`;
+
+  const nextRight =
+    `/sketches/sketch${index + 3}.JPG`;
 
   /* ---------------- STYLES ---------------- */
 
   const flipStyle = {
-    transform: isFlipping
-      ? "rotateY(-180deg) skewY(12deg)"
+    transform: flipping
+      ? "rotateY(-180deg) translateX(-8px)"
       : "rotateY(0deg)",
-    transition: isFlipping
-      ? "transform 2.2s cubic-bezier(.18,.75,.25,1)"
+    transition: flipping
+      ? "transform 2.6s cubic-bezier(.22,.61,.36,1)"
       : "none",
     transformOrigin: "left center",
     transformStyle: "preserve-3d" as const,
   };
 
   return (
-    <section className="w-full flex flex-col items-center py-32 select-none">
-      <h2 className="text-3xl mb-10">Sketchbook</h2>
+    <section className="w-full py-32 flex flex-col items-center">
+      <h2 className="text-3xl mb-12">Sketchbook</h2>
 
-      {/* BOOK */}
       <div
-        className="relative"
         style={{
           width: "1000px",
           height: "700px",
-          perspective: "2200px",
+          perspective: "2400px",
+          position: "relative",
         }}
       >
         {/* LEFT PAGE */}
         <div
-          className="absolute left-0 top-0 h-full bg-[#f5f2ec] shadow-inner"
-          style={{ width: "48%" }}
+          style={{
+            position: "absolute",
+            left: 0,
+            width: "48%",
+            height: "100%",
+            background: "#f5f2ec",
+            boxShadow: "inset -8px 0 12px rgba(0,0,0,.06)",
+          }}
         >
-          {leftPage ? (
+          {leftImage ? (
             <img
-              src={leftPage}
+              src={leftImage}
               className="w-full h-full object-contain"
               draggable={false}
             />
@@ -119,23 +123,50 @@ export default function SketchbookSection() {
           )}
         </div>
 
-        {/* SPINE GAP */}
+        {/* SPINE */}
         <div
-          className="absolute top-0 h-full"
           style={{
+            position: "absolute",
             left: "48%",
             width: "4%",
+            height: "100%",
           }}
         />
 
-        {/* RIGHT STATIC PAGE */}
-        {!isFlipping && (
+        {/* RIGHT STATIC (NEW PAGE FADE IN) */}
+        {!flipping && (
           <div
-            className="absolute right-0 top-0 h-full bg-[#f5f2ec]"
-            style={{ width: "48%" }}
+            style={{
+              position: "absolute",
+              right: 0,
+              width: "48%",
+              height: "100%",
+              background: "#f5f2ec",
+            }}
           >
             <img
-              src={rightPage}
+              src={rightImage}
+              className="w-full h-full object-contain"
+              draggable={false}
+            />
+          </div>
+        )}
+
+        {/* NEXT PAGE (FADE) */}
+        {flipping && (
+          <div
+            style={{
+              position: "absolute",
+              right: 0,
+              width: "48%",
+              height: "100%",
+              background: "#f5f2ec",
+              opacity: 0,
+              animation: "fadeIn 2.4s ease forwards",
+            }}
+          >
+            <img
+              src={nextRight}
               className="w-full h-full object-contain"
               draggable={false}
             />
@@ -143,41 +174,47 @@ export default function SketchbookSection() {
         )}
 
         {/* FLIPPING PAGE */}
-        {canGoNext && (
+        {canNext && (
           <div
             onMouseDown={onMouseDown}
-            className="absolute right-0 top-0 h-full bg-[#f5f2ec] cursor-grab active:cursor-grabbing"
             style={{
+              position: "absolute",
+              right: 0,
               width: "48%",
+              height: "100%",
+              background: "#f5f2ec",
+              cursor: "grab",
               ...flipStyle,
             }}
           >
+            {/* FRONT */}
             <img
-              src={rightPage}
-              className="w-full h-full object-contain"
+              src={rightImage}
+              className="absolute w-full h-full object-contain"
+              draggable={false}
+            />
+
+            {/* BACK */}
+            <img
+              src={backImage}
+              className="absolute w-full h-full object-contain"
+              style={{
+                transform: "rotateY(180deg)",
+                backfaceVisibility: "hidden",
+              }}
               draggable={false}
             />
           </div>
         )}
       </div>
 
-      {/* CONTROLS */}
-      <div className="flex gap-6 mt-10">
-        <button
-          onClick={triggerPrev}
-          disabled={!canGoPrev}
-          className="px-4 py-2 border disabled:opacity-30"
-        >
-          ←
-        </button>
-        <button
-          onClick={triggerNext}
-          disabled={!canGoNext}
-          className="px-4 py-2 border disabled:opacity-30"
-        >
-          →
-        </button>
-      </div>
+      <style>
+        {`
+          @keyframes fadeIn {
+            to { opacity: 1; }
+          }
+        `}
+      </style>
     </section>
   );
 }
