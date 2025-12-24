@@ -68,6 +68,7 @@ export default function SketchbookSection() {
 
   /* ---------------- FLIP ANIMATION ---------------- */
   const finalizeFlip = (dir: "next" | "prev") => {
+    setFlipping(dir);
     const duration = 2400;
     const start = performance.now();
 
@@ -103,8 +104,11 @@ export default function SketchbookSection() {
     height: "100%",
     transformOrigin: "0% center",
     transformStyle: "preserve-3d",
-    transform: flipping === "next" ? `rotateY(-180deg)` : "rotateY(0deg)",
-    transition: flipping === "next" ? "transform 2.4s cubic-bezier(.22,.61,.36,1)" : "none",
+    transform:
+      flipping === "next"
+        ? `rotateY(${(flipProgress / 100) * -180}deg)`
+        : "rotateY(0deg)",
+    transition: flipping === "none" ? "none" : undefined,
     zIndex: 6,
   };
 
@@ -116,22 +120,32 @@ export default function SketchbookSection() {
     height: "100%",
     transformOrigin: "100% center",
     transformStyle: "preserve-3d",
-    transform: flipping === "prev" ? "rotateY(180deg)" : "rotateY(0deg)",
-    transition: flipping === "prev" ? "transform 2.4s cubic-bezier(.22,.61,.36,1)" : "none",
+    transform:
+      flipping === "prev"
+        ? `rotateY(${(flipProgress / 100) * 180}deg)`
+        : "rotateY(0deg)",
+    transition: flipping === "none" ? "none" : undefined,
     zIndex: 6,
   };
 
-  /* ---------------- LEFT PAGE DURUMU ---------------- */
-  // İleri flipte soldaki sayfa flip boyunca sabit, DOM değişimi flip tamamlandıktan sonra
+  /* ---------------- DISPLAY LOGIC ---------------- */
   const leftDisplayImage =
-    flipping === "prev"
-      ? prevPrevLeftImage || leftImage
+    flipping === "next" && flipProgress >= 50 && page + 2 <= TOTAL
+      ? `/sketches/sketch${page + 2}.JPG`
       : leftImage;
 
-  /* ---------------- RIGHT PAGE OPACITY ---------------- */
-  // İleri flipte sağdaki sayfa 0-180° boyunca dönüyor, arka yüz görünür
-  const rightFrontOpacity = 1;
-  const rightBackOpacity = 1;
+  const rightFrontOpacity =
+    flipping === "next"
+      ? flipProgress < 50
+        ? 1
+        : 0
+      : 1;
+  const rightBackOpacity =
+    flipping === "next"
+      ? flipProgress >= 50
+        ? 1
+        : 0
+      : 0;
 
   return (
     <section className="py-32 flex justify-center">
@@ -146,7 +160,16 @@ export default function SketchbookSection() {
         }}
       >
         {/* LEFT PAGE */}
-        <div style={{ position: "absolute", left: 0, width: "50%", height: "100%", background: "#f5f2ec", zIndex: 1 }}>
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            width: "50%",
+            height: "100%",
+            background: "#f5f2ec",
+            zIndex: 1,
+          }}
+        >
           {leftDisplayImage && (
             <img
               src={leftDisplayImage}
@@ -160,8 +183,22 @@ export default function SketchbookSection() {
         </div>
 
         {/* RIGHT PAGE UNDER FLIP */}
-        <div style={{ position: "absolute", right: 0, width: "50%", height: "100%", background: "#f5f2ec", zIndex: 1 }}>
-          {nextRightImage && <img src={nextRightImage} style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
+        <div
+          style={{
+            position: "absolute",
+            right: 0,
+            width: "50%",
+            height: "100%",
+            background: "#f5f2ec",
+            zIndex: 1,
+          }}
+        >
+          {nextRightImage && (
+            <img
+              src={nextRightImage}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          )}
         </div>
 
         {/* RIGHT FLIP */}
@@ -198,9 +235,30 @@ export default function SketchbookSection() {
         {/* LEFT FLIP */}
         {canPrev && (
           <div style={leftFlipStyle}>
-            <img src={leftImage || ""} style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", width: "100%", height: "100%", objectFit: "cover" }} />
+            <img
+              src={leftImage || ""}
+              style={{
+                position: "absolute",
+                inset: 0,
+                backfaceVisibility: "hidden",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
             {prevLeftImage && (
-              <img src={prevLeftImage} style={{ position: "absolute", inset: 0, transform: "rotateY(180deg)", backfaceVisibility: "hidden", width: "100%", height: "100%", objectFit: "cover" }} />
+              <img
+                src={prevLeftImage}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  transform: "rotateY(180deg)",
+                  backfaceVisibility: "hidden",
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
             )}
           </div>
         )}
