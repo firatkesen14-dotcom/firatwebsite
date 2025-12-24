@@ -17,8 +17,7 @@ export default function SketchbookSection() {
 
   /* ---------------- DRAG START ---------------- */
   const onMouseDown = (e: React.MouseEvent) => {
-    if (flipping) return;
-    if (!bookRef.current) return;
+    if (flipping || !bookRef.current) return;
 
     const rect = bookRef.current.getBoundingClientRect();
     const midX = rect.left + rect.width / 2;
@@ -95,18 +94,26 @@ export default function SketchbookSection() {
       ? `/sketches/sketch1.JPG`
       : `/sketches/sketch${page + 1}.JPG`;
 
+  // 🔥 BACK IMAGE (DÜZELTİLDİ)
   const backImage =
     flipDir === 1
       ? page + 2 <= TOTAL
         ? `/sketches/sketch${page + 2}.JPG`
         : rightImage
-      : page - 1 > 0
-      ? `/sketches/sketch${page - 1}.JPG`
-      : leftImage;
+      : page - 2 >= 0
+      ? `/sketches/sketch${page - 2}.JPG`
+      : null;
 
+  // 👉 ileri için alt sağ
   const nextRightImage =
     flipDir === 1 && page + 3 <= TOTAL
       ? `/sketches/sketch${page + 3}.JPG`
+      : null;
+
+  // 👈 geri için alt sol (YENİ)
+  const prevLeftImage =
+    flipDir === -1 && page - 2 > 0
+      ? `/sketches/sketch${page - 2}.JPG`
       : null;
 
   /* ---------------- FLIP STYLE ---------------- */
@@ -148,17 +155,7 @@ export default function SketchbookSection() {
         }}
       >
         {/* LEFT PAGE */}
-        <div
-          style={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            width: "50%",
-            height: "100%",
-            background: "#f5f2ec",
-            zIndex: 1,
-          }}
-        >
+        <div style={{ position: "absolute", left: 0, top: 0, width: "50%", height: "100%", background: "#f5f2ec", zIndex: 1 }}>
           {leftImage ? (
             <img src={leftImage} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           ) : (
@@ -168,47 +165,18 @@ export default function SketchbookSection() {
           )}
         </div>
 
-        {/* RIGHT PAGE (UNDER FLIP) */}
-        <div
-          style={{
-            position: "absolute",
-            right: 0,
-            top: 0,
-            width: "50%",
-            height: "100%",
-            background: "#f5f2ec",
-            zIndex: 1,
-          }}
-        >
-          {nextRightImage && (
-            <img
-              src={nextRightImage}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                opacity: flipping ? 1 : 0,
-                transition: "opacity 1.2s ease",
-              }}
-            />
+        {/* RIGHT PAGE */}
+        <div style={{ position: "absolute", right: 0, top: 0, width: "50%", height: "100%", background: "#f5f2ec", zIndex: 1 }}>
+          {flipDir === 1 && nextRightImage && (
+            <img src={nextRightImage} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: flipping ? 1 : 0, transition: "opacity 1.2s ease" }} />
+          )}
+          {flipDir === -1 && prevLeftImage && (
+            <img src={prevLeftImage} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: flipping ? 1 : 0, transition: "opacity 1.2s ease" }} />
           )}
         </div>
 
         {/* BOOK SPINE */}
-        <div
-          style={{
-            position: "absolute",
-            left: "50%",
-            top: 0,
-            width: "6px",
-            height: "100%",
-            transform: "translateX(-50%)",
-            background:
-              "linear-gradient(to right, rgba(0,0,0,0.18), rgba(0,0,0,0.02), rgba(0,0,0,0.18))",
-            zIndex: 4,
-            pointerEvents: "none",
-          }}
-        />
+        <div style={{ position: "absolute", left: "50%", top: 0, width: "6px", height: "100%", transform: "translateX(-50%)", background: "linear-gradient(to right, rgba(0,0,0,0.18), rgba(0,0,0,0.02), rgba(0,0,0,0.18))", zIndex: 4, pointerEvents: "none" }} />
 
         {/* FLIPPING PAGE */}
         {(canNext || canPrev) && (
@@ -216,49 +184,18 @@ export default function SketchbookSection() {
             {/* FRONT */}
             <img
               src={flipDir === 1 ? rightImage : leftImage ?? rightImage}
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                backfaceVisibility: "hidden",
-              }}
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", backfaceVisibility: "hidden" }}
             />
 
             {/* BACK */}
             {backImage && (
               <img
                 src={backImage}
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  transform: "rotateY(180deg)",
-                  backfaceVisibility: "hidden",
-                }}
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", transform: "rotateY(180deg)", backfaceVisibility: "hidden" }}
               />
             )}
           </div>
         )}
-
-        {/* ARROWS */}
-        <div className="absolute bottom-[-60px] left-1/2 -translate-x-1/2 flex gap-12 text-xl">
-          <button
-            onClick={() => canPrev && startFlip(-1)}
-            className="opacity-60 hover:opacity-100"
-          >
-            &lt;
-          </button>
-          <button
-            onClick={() => canNext && startFlip(1)}
-            className="opacity-60 hover:opacity-100"
-          >
-            &gt;
-          </button>
-        </div>
       </div>
     </section>
   );
