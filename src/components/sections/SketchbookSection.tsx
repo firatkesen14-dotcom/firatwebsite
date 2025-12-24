@@ -95,8 +95,14 @@ export default function SketchbookSection() {
 
   return (
     <section className="py-32 flex justify-center">
-      <div style={{ width: 1000, height: 700, perspective: 2600, position: "relative" }}>
-
+      <div
+        style={{
+          width: 1000,
+          height: 700,
+          perspective: 2600,
+          position: "relative",
+        }}
+      >
         {/* LEFT PAGE */}
         <div
           onMouseDown={onMouseDownLeft}
@@ -111,7 +117,14 @@ export default function SketchbookSection() {
           }}
         >
           {left ? (
-            <img src={left} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <img
+              src={left}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-4xl tracking-widest">
               SKETCHES
@@ -170,15 +183,33 @@ export default function SketchbookSection() {
               height: "100%",
               transformStyle: "preserve-3d",
               transformOrigin: "0% center",
-              transform: flipping === "next" ? "rotateY(-180deg)" : "none",
-              transition: flipping === "next"
-                ? "transform 2.4s cubic-bezier(.22,.61,.36,1)"
-                : "none",
+              transform:
+                flipping === "next" ? "rotateY(-180deg)" : "none",
+              transition:
+                flipping === "next"
+                  ? "transform 2.4s cubic-bezier(.22,.61,.36,1)"
+                  : "none",
               zIndex: 6,
             }}
           >
-            <img src={right} style={{ width: "100%", height: "100%", objectFit: "cover", backfaceVisibility: "hidden" }} />
-            <img src={`/sketches/sketch${page + 2}.JPG`} style={{ position: "absolute", inset: 0, transform: "rotateY(180deg)", backfaceVisibility: "hidden" }} />
+            <img
+              src={right}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                backfaceVisibility: "hidden",
+              }}
+            />
+            <img
+              src={`/sketches/sketch${page + 2}.JPG`}
+              style={{
+                position: "absolute",
+                inset: 0,
+                transform: "rotateY(180deg)",
+                backfaceVisibility: "hidden",
+              }}
+            />
           </div>
         )}
 
@@ -192,15 +223,33 @@ export default function SketchbookSection() {
               height: "100%",
               transformStyle: "preserve-3d",
               transformOrigin: "100% center",
-              transform: flipping === "prev" ? "rotateY(180deg)" : "none",
-              transition: flipping === "prev"
-                ? "transform 2.4s cubic-bezier(.22,.61,.36,1)"
-                : "none",
+              transform:
+                flipping === "prev" ? "rotateY(180deg)" : "none",
+              transition:
+                flipping === "prev"
+                  ? "transform 2.4s cubic-bezier(.22,.61,.36,1)"
+                  : "none",
               zIndex: 5,
             }}
           >
-            <img src={left!} style={{ width: "100%", height: "100%", objectFit: "cover", backfaceVisibility: "hidden" }} />
-            <img src={prevLeft ?? "/sketches/cover.JPG"} style={{ position: "absolute", inset: 0, transform: "rotateY(180deg)", backfaceVisibility: "hidden" }} />
+            <img
+              src={left!}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                backfaceVisibility: "hidden",
+              }}
+            />
+            <img
+              src={prevLeft ?? "/sketches/cover.JPG"}
+              style={{
+                position: "absolute",
+                inset: 0,
+                transform: "rotateY(180deg)",
+                backfaceVisibility: "hidden",
+              }}
+            />
           </div>
         )}
       </div>
