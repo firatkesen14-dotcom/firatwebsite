@@ -1,193 +1,218 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const TOTAL = 30;
-const DRAG_THRESHOLD = 80;
 
 export default function SketchbookSection() {
-  const [page, setPage] = useState(0); // 0 = kapak
-  const [flipping, setFlipping] = useState<"next" | "prev" | null>(null);
-  const [draggingSide, setDraggingSide] = useState<"left" | "right" | null>(null);
-
+  const [page, setPage] = useState(0);
+  const [flipping, setFlipping] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const startX = useRef(0);
+
+  const canNext = page < TOTAL - 1;
+  const canPrev = page > 0;
+
+  /* ---------------- DRAG ---------------- */
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (!canNext || flipping) return;
+    startX.current = e.clientX;
+    setDragging(true);
+  };
+
+  useEffect(() => {
+    const move = (e: MouseEvent) => {
+      if (!dragging) return;
+      if (e.clientX < startX.current - 12) {
+        setDragging(false);
+        startFlip(1);
+      }
+    };
+
+    const up = () => setDragging(false);
+
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", up);
+    return () => {
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseup", up);
+    };
+  }, [dragging]);
+
+  /* ---------------- FLIP ---------------- */
+
+  const startFlip = (dir: 1 | -1) => {
+    if (flipping) return;
+    setFlipping(true);
+
+    setTimeout(() => {
+      setPage(p =>
+        dir === 1 ? Math.min(p + 2, TOTAL - 1) : Math.max(p - 2, 0)
+      );
+      setFlipping(false);
+    }, 2400);
+  };
 
   /* ---------------- IMAGES ---------------- */
 
   const leftImage =
-    page === 0
-      ? "/sketches/cover.JPG"
-      : `/sketches/sketch${page * 2}.JPG`;
+    page === 0 ? null : `/sketches/sketch${page}.JPG`;
 
   const rightImage =
     page === 0
-      ? "/sketches/sketch1.JPG"
-      : `/sketches/sketch${page * 2 + 1}.JPG`;
+      ? `/sketches/sketch1.JPG`
+      : `/sketches/sketch${page + 1}.JPG`;
 
+  // 🔧 DÜZELTİLEN KISIM
+  // Flip olurken sağ arkada GÖRÜNECEK sayfa = page + 3
   const nextRightImage =
-    page * 2 + 3 <= TOTAL
-      ? `/sketches/sketch${page * 2 + 3}.JPG`
-      : null;
+    page + 3 <= TOTAL ? `/sketches/sketch${page + 3}.JPG` : null;
 
-  const prevLeftImage =
-    page > 1 ? `/sketches/sketch${page * 2 - 2}.JPG` : "/sketches/cover.JPG";
+  /* ---------------- FLIP STYLE ---------------- */
 
-  /* ---------------- DRAG ---------------- */
-
-  const onMouseDown = (e: React.MouseEvent, side: "left" | "right") => {
-    startX.current = e.clientX;
-    setDraggingSide(side);
-  };
-
-  const onMouseUp = (e: React.MouseEvent) => {
-    if (!draggingSide) return;
-
-    const diff = e.clientX - startX.current;
-
-    /* ---- NEXT ---- */
-    if (
-      draggingSide === "right" &&
-      diff < -DRAG_THRESHOLD &&
-      page * 2 + 1 < TOTAL &&
-      !flipping
-    ) {
-      setFlipping("next");
-      setTimeout(() => {
-        setPage((p) => p + 1);
-        setFlipping(null);
-      }, 900);
-    }
-
-    /* ---- PREV ---- */
-    if (
-      draggingSide === "left" &&
-      diff > DRAG_THRESHOLD &&
-      page > 0 &&
-      !flipping
-    ) {
-      setFlipping("prev");
-      setTimeout(() => {
-        setPage((p) => p - 1);
-        setFlipping(null);
-      }, 900);
-    }
-
-    setDraggingSide(null);
-  };
-
-  /* ---------------- STYLES ---------------- */
-
-  const pageBase: React.CSSProperties = {
-    width: "48%",
-    height: "100%",
-    backgroundSize: "cover",
-    backgroundPosition: "center",
+  const flipStyle: React.CSSProperties = {
     position: "absolute",
     top: 0,
+    right: 0,
+    width: "50%",
+    height: "100%",
+    transformStyle: "preserve-3d",
+    transformOrigin: "0% center",
+    transform: flipping ? "rotateY(-180deg)" : "rotateY(0deg)",
+    transition: flipping
+      ? "transform 2.4s cubic-bezier(.22,.61,.36,1)"
+      : "none",
+    cursor: "grab",
+    zIndex: 6,
   };
 
   return (
-    <section className="py-32">
-      <div className="mx-auto max-w-6xl">
+    <section className="py-32 flex justify-center">
+      <div
+        style={{
+          width: "1000px",
+          height: "700px",
+          perspective: "2600px",
+          position: "relative",
+        }}
+      >
+        {/* LEFT PAGE */}
         <div
-          className="relative mx-auto"
           style={{
-            height: "80vh",
-            perspective: "2200px",
-            display: "flex",
-            justifyContent: "space-between",
-            gap: "4%",
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: "50%",
+            height: "100%",
+            background: "#f5f2ec",
+            zIndex: 1,
           }}
-          onMouseUp={onMouseUp}
         >
-          {/* ---------- LEFT PAGE ---------- */}
-          <div
-            style={{
-              ...pageBase,
-              left: 0,
-              backgroundImage: `url(${leftImage})`,
-            }}
-            onMouseDown={(e) => onMouseDown(e, "left")}
-          />
-
-          {/* ---------- RIGHT PAGE ---------- */}
-          <div
-            style={{
-              ...pageBase,
-              right: 0,
-              backgroundImage: `url(${rightImage})`,
-            }}
-            onMouseDown={(e) => onMouseDown(e, "right")}
-          />
-
-          {/* ---------- NEXT FLIP ---------- */}
-          {flipping === "next" && nextRightImage && (
-            <div
-              style={{
-                position: "absolute",
-                right: "52%",
-                width: "48%",
-                height: "100%",
-                transformOrigin: "left center",
-                animation: "pageFlipNext 0.9s ease-in-out forwards",
-                backgroundImage: `url(${rightImage})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  transform: "rotateY(180deg)",
-                  backgroundImage: `url(${nextRightImage})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              />
-            </div>
-          )}
-
-          {/* ---------- PREV FLIP ---------- */}
-          {flipping === "prev" && (
-            <div
-              style={{
-                position: "absolute",
-                left: "52%",
-                width: "48%",
-                height: "100%",
-                transformOrigin: "right center",
-                animation: "pageFlipPrev 0.9s ease-in-out forwards",
-                backgroundImage: `url(${leftImage})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  transform: "rotateY(180deg)",
-                  backgroundImage: `url(${prevLeftImage})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              />
+          {leftImage ? (
+            <img
+              src={leftImage}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-4xl tracking-widest">
+              SKETCHES
             </div>
           )}
         </div>
+
+        {/* RIGHT PAGE (UNDER FLIP) */}
+        <div
+          style={{
+            position: "absolute",
+            right: 0,
+            top: 0,
+            width: "50%",
+            height: "100%",
+            background: "#f5f2ec",
+            zIndex: 1,
+          }}
+        >
+          {nextRightImage && (
+            <img
+              src={nextRightImage}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                opacity: flipping ? 1 : 0,
+                transition: "opacity 1.2s ease",
+              }}
+            />
+          )}
+        </div>
+
+        {/* BOOK SPINE */}
+        <div
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: 0,
+            width: "6px",
+            height: "100%",
+            transform: "translateX(-50%)",
+            background:
+              "linear-gradient(to right, rgba(0,0,0,0.18), rgba(0,0,0,0.02), rgba(0,0,0,0.18))",
+            zIndex: 4,
+            pointerEvents: "none",
+          }}
+        />
+
+        {/* FLIPPING PAGE */}
+        {canNext && (
+          <div onMouseDown={onMouseDown} style={flipStyle}>
+            {/* FRONT */}
+            <img
+              src={rightImage}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                backfaceVisibility: "hidden",
+              }}
+            />
+
+            {/* BACK → Sketch2 */}
+            <img
+              src={
+                page + 2 <= TOTAL
+                  ? `/sketches/sketch${page + 2}.JPG`
+                  : rightImage
+              }
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                transform: "rotateY(180deg)",
+                backfaceVisibility: "hidden",
+              }}
+            />
+          </div>
+        )}
+
+        {/* ARROWS */}
+        <div className="absolute bottom-[-60px] left-1/2 -translate-x-1/2 flex gap-12 text-xl">
+          <button
+            onClick={() => canPrev && startFlip(-1)}
+            className="opacity-60 hover:opacity-100"
+          >
+            &lt;
+          </button>
+          <button
+            onClick={() => canNext && startFlip(1)}
+            className="opacity-60 hover:opacity-100"
+          >
+            &gt;
+          </button>
+        </div>
       </div>
-
-      {/* ---------- ANIMATIONS ---------- */}
-      <style>{`
-        @keyframes pageFlipNext {
-          0% { transform: rotateY(0deg); }
-          100% { transform: rotateY(-180deg); }
-        }
-
-        @keyframes pageFlipPrev {
-          0% { transform: rotateY(0deg); }
-          100% { transform: rotateY(180deg); }
-        }
-      `}</style>
     </section>
   );
 }
