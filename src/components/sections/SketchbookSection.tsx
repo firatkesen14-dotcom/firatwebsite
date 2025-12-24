@@ -122,18 +122,27 @@ export default function SketchbookSection() {
     zIndex: 6,
   };
 
-  /* ---------------- FADE & OPACITY ---------------- */
-  // İleri flip: sağ sayfa ön yüz → arka yüz geçişi
-  const rightFrontOpacity = flipping === "next" ? 1 - Math.max(flipProgress - 50, 0) / 50 : 1;
-  const rightBackOpacity = flipping === "next" ? Math.min(flipProgress - 50, 50) / 50 : 0;
+  /* ---------------- FADE & ZINDEX ---------------- */
+  const leftFadeStyle: React.CSSProperties = {
+    opacity: flipping === "next" && flipProgress > 50 ? 0 : 1,
+    transition: "opacity 0.2s ease",
+    zIndex: 4,
+  };
 
-  // İleri flip: soldaki sayfa fade out
-  const leftOpacityDuringNext = flipping === "next" ? Math.max(1 - (flipProgress - 50) / 50, 0) : 1;
+  const rightFadeStyle: React.CSSProperties = {
+    opacity: flipping === "prev" && flipProgress > 50 ? 0 : 1,
+    transition: "opacity 0.2s ease",
+    zIndex: 4,
+  };
+
+  // İleri flip: sağ sayfa ön yüz/arka yüz geçişi için
+  const rightFrontOpacity = flipping === "next" ? 1 - Math.min(flipProgress / 50, 1) : 1;
+  const rightBackOpacity = flipping === "next" ? Math.max(flipProgress / 50, 0) : 0;
 
   const leftDisplayImage =
     flipping === "prev" && prevPrevLeftImage
       ? prevPrevLeftImage
-      : flipping === "next" && flipProgress >= 50 && page + 2 <= TOTAL
+      : flipping === "next" && flipProgress > 50 && page + 2 <= TOTAL
       ? `/sketches/sketch${page + 2}.JPG`
       : leftImage;
 
@@ -151,23 +160,12 @@ export default function SketchbookSection() {
       >
         {/* LEFT PAGE */}
         <div style={{ position: "absolute", left: 0, width: "50%", height: "100%", background: "#f5f2ec", zIndex: 1 }}>
-          {leftDisplayImage && (
-            <img
-              src={leftDisplayImage}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                opacity: leftOpacityDuringNext,
-                transition: "opacity 0.2s ease",
-              }}
-            />
-          )}
+          {leftDisplayImage && <img src={leftDisplayImage} style={{ width: "100%", height: "100%", objectFit: "cover", ...leftFadeStyle }} />}
         </div>
 
         {/* RIGHT PAGE UNDER FLIP */}
         <div style={{ position: "absolute", right: 0, width: "50%", height: "100%", background: "#f5f2ec", zIndex: 1 }}>
-          {nextRightImage && <img src={nextRightImage} style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
+          {nextRightImage && <img src={nextRightImage} style={{ width: "100%", height: "100%", objectFit: "cover", ...rightFadeStyle }} />}
         </div>
 
         {/* RIGHT FLIP */}
