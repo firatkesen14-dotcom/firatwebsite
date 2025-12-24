@@ -66,7 +66,7 @@ export default function SketchbookSection() {
     };
   }, [dragging, flipping]);
 
-  /* ---------------- FLIP END ---------------- */
+  /* ---------------- FLIP ANIMATION ---------------- */
   const finalizeFlip = (dir: "next" | "prev") => {
     setFlipping(dir);
     const duration = 2400;
@@ -123,18 +123,21 @@ export default function SketchbookSection() {
   };
 
   /* ---------------- FADE & ZINDEX ---------------- */
-  // İleri flip: soldaki sayfa 90° geçince opacity değişiyor
   const leftFadeStyle: React.CSSProperties = {
     opacity: flipping === "next" && flipProgress > 50 ? 0 : 1,
     transition: "opacity 0.2s ease",
-    zIndex: flipping === "next" ? 2 : 4,
+    zIndex: 4,
   };
 
   const rightFadeStyle: React.CSSProperties = {
     opacity: flipping === "prev" && flipProgress > 50 ? 0 : 1,
     transition: "opacity 0.2s ease",
-    zIndex: flipping === "prev" ? 2 : 4,
+    zIndex: 4,
   };
+
+  // İleri flip: sağ sayfa ön yüz/arka yüz geçişi için
+  const rightFrontOpacity = flipping === "next" ? 1 - Math.min(flipProgress / 50, 1) : 1;
+  const rightBackOpacity = flipping === "next" ? Math.max(flipProgress / 50, 0) : 0;
 
   const leftDisplayImage =
     flipping === "prev" && prevPrevLeftImage
@@ -160,7 +163,7 @@ export default function SketchbookSection() {
           {leftDisplayImage && <img src={leftDisplayImage} style={{ width: "100%", height: "100%", objectFit: "cover", ...leftFadeStyle }} />}
         </div>
 
-        {/* RIGHT PAGE */}
+        {/* RIGHT PAGE UNDER FLIP */}
         <div style={{ position: "absolute", right: 0, width: "50%", height: "100%", background: "#f5f2ec", zIndex: 1 }}>
           {nextRightImage && <img src={nextRightImage} style={{ width: "100%", height: "100%", objectFit: "cover", ...rightFadeStyle }} />}
         </div>
@@ -168,8 +171,31 @@ export default function SketchbookSection() {
         {/* RIGHT FLIP */}
         {canNext && (
           <div style={rightFlipStyle}>
-            <img src={rightImage} style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", width: "100%", height: "100%", objectFit: "cover" }} />
-            <img src={`/sketches/sketch${page + 2}.JPG`} style={{ position: "absolute", inset: 0, transform: "rotateY(180deg)", backfaceVisibility: "hidden", width: "100%", height: "100%", objectFit: "cover" }} />
+            <img
+              src={rightImage}
+              style={{
+                position: "absolute",
+                inset: 0,
+                backfaceVisibility: "hidden",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                opacity: rightFrontOpacity,
+              }}
+            />
+            <img
+              src={`/sketches/sketch${page + 2}.JPG`}
+              style={{
+                position: "absolute",
+                inset: 0,
+                transform: "rotateY(180deg)",
+                backfaceVisibility: "hidden",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                opacity: rightBackOpacity,
+              }}
+            />
           </div>
         )}
 
