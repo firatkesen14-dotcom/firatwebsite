@@ -1,10 +1,10 @@
 import { useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const sketchPages = Array.from({ length: 30 }, (_, i) => ({
+const TOTAL_PAGES = 30;
+const sketchPages = Array.from({ length: TOTAL_PAGES }, (_, i) => ({
   id: i + 1,
   label: `Sketch ${i + 1}`,
-  src: `/sketches/sketch${i + 1}.JPG`
 }));
 
 const SketchbookSection = () => {
@@ -16,10 +16,10 @@ const SketchbookSection = () => {
     (direction: "left" | "right") => {
       if (isFlipping) return;
 
-      const newPage =
+      let newPage =
         direction === "right"
-          ? Math.min(currentPage + 1, sketchPages.length - 1)
-          : Math.max(currentPage - 1, 0);
+          ? Math.min(currentPage + 2, TOTAL_PAGES - 1)
+          : Math.max(currentPage - 2, 0);
 
       if (newPage === currentPage) return;
 
@@ -30,7 +30,7 @@ const SketchbookSection = () => {
         setCurrentPage(newPage);
         setIsFlipping(false);
         setFlipDirection(null);
-      }, 800);
+      }, 800); // animasyon süresi
     },
     [currentPage, isFlipping]
   );
@@ -38,117 +38,80 @@ const SketchbookSection = () => {
   const handlePrevious = () => goToPage("left");
   const handleNext = () => goToPage("right");
 
-  const getNextPageSrc = () => {
-    if (flipDirection === "right" && currentPage < sketchPages.length - 1)
-      return sketchPages[currentPage + 1].src;
-    if (flipDirection === "left" && currentPage > 0)
-      return sketchPages[currentPage - 1].src;
-    return null;
-  };
-
   return (
     <section id="sketchbook" className="py-24 md:py-32 border-t border-border/50">
       <div className="container-wide">
+        {/* Section Header */}
         <header className="mb-12 text-center">
           <h2 className="text-4xl md:text-5xl font-light text-foreground tracking-tight mb-4">
             Sketchbook
           </h2>
           <p className="text-muted-foreground">
-            A collection of my sketches and creative experiments
+            My design explorations and visual studies
           </p>
         </header>
 
-        <div className="relative max-w-3xl mx-auto">
+        {/* Sketchbook Container */}
+        <div className="relative max-w-5xl mx-auto flex justify-center">
+          {/* Book Spread */}
           <div
-            className="relative mx-auto"
-            style={{
-              perspective: "2000px",
-              aspectRatio: "1 / 1.414",
-              maxHeight: "70vh"
-            }}
+            className="relative flex w-full max-w-4xl aspect-[2/1.414]"
+            style={{ perspective: "1500px" }}
           >
-            <div className="relative w-full h-full">
-              {/* Next Page for smooth blur & opacity */}
-              {getNextPageSrc() && (
-                <img
-                  src={getNextPageSrc()!}
-                  alt="Next page"
-                  className={`absolute inset-0 w-full h-full object-contain rounded-sm shadow-2xl transition-all duration-800`}
-                  style={{
-                    backfaceVisibility: "hidden",
-                    transform: "rotateY(0deg)",
-                    filter: isFlipping ? "blur(6px)" : "blur(0px)",
-                    opacity: isFlipping ? 0.3 : 1,
-                  }}
-                />
-              )}
+            {/* Left Page */}
+            <img
+              src={`/sketches/sketch${currentPage + 1}.JPG`}
+              alt={`Sketch ${currentPage + 1}`}
+              className={`absolute left-0 w-1/2 h-full object-cover rounded-sm shadow-2xl transition-transform duration-800 ease-in-out transform ${
+                isFlipping && flipDirection === "right" ? "-rotate-y-[180deg] scale-x-[0.98]" : ""
+              }`}
+              style={{ transformOrigin: "right center", backfaceVisibility: "hidden" }}
+            />
 
-              {/* Current Page */}
+            {/* Right Page */}
+            {currentPage + 2 < TOTAL_PAGES && (
               <img
-                src={sketchPages[currentPage].src}
-                alt={sketchPages[currentPage].label}
-                className={`absolute inset-0 w-full h-full object-contain rounded-sm shadow-2xl transform transition-transform duration-800 ${
-                  isFlipping && flipDirection === "right"
-                    ? "animate-flip-right-elastic"
-                    : isFlipping && flipDirection === "left"
-                    ? "animate-flip-left-elastic"
-                    : "rotateY-0"
+                src={`/sketches/sketch${currentPage + 2}.JPG`}
+                alt={`Sketch ${currentPage + 2}`}
+                className={`absolute right-0 w-1/2 h-full object-cover rounded-sm shadow-2xl transition-opacity duration-800 ease-in-out ${
+                  isFlipping && flipDirection === "right" ? "opacity-100" : "opacity-100"
                 }`}
                 style={{ backfaceVisibility: "hidden" }}
               />
-            </div>
+            )}
           </div>
+        </div>
 
-          {/* Navigation */}
-          <div className="flex items-center justify-center gap-8 mt-8">
-            <button
-              onClick={handlePrevious}
-              disabled={currentPage === 0 || isFlipping}
-              className="p-3 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300"
-              aria-label="Previous page"
-            >
-              <ChevronLeft size={24} />
-            </button>
+        {/* Navigation */}
+        <div className="flex items-center justify-center gap-8 mt-8">
+          <button
+            onClick={handlePrevious}
+            disabled={currentPage === 0 || isFlipping}
+            className="p-3 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300"
+            aria-label="Previous pages"
+          >
+            <ChevronLeft size={24} />
+          </button>
 
-            <button
-              onClick={handleNext}
-              disabled={currentPage === sketchPages.length - 1 || isFlipping}
-              className="p-3 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300"
-              aria-label="Next page"
-            >
-              <ChevronRight size={24} />
-            </button>
-          </div>
+          <button
+            onClick={handleNext}
+            disabled={currentPage >= TOTAL_PAGES - 2 || isFlipping}
+            className="p-3 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300"
+            aria-label="Next pages"
+          >
+            <ChevronRight size={24} />
+          </button>
         </div>
       </div>
 
+      {/* Page Flip Animations */}
       <style>{`
-        .rotateY-0 { transform: rotateY(0deg); }
-
-        /* Smooth elastic flip right */
-        .animate-flip-right-elastic {
-          animation: flipRightElastic 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-          transform-origin: left center;
+        @keyframes flipRight {
+          0% { transform: rotateY(0deg); }
+          100% { transform: rotateY(-180deg); }
         }
-
-        /* Smooth elastic flip left */
-        .animate-flip-left-elastic {
-          animation: flipLeftElastic 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-          transform-origin: right center;
-        }
-
-        @keyframes flipRightElastic {
-          0% { transform: rotateY(0deg) scaleX(1); }
-          30% { transform: rotateY(-45deg) scaleX(1.02) skewY(0.3deg); }
-          60% { transform: rotateY(-90deg) scaleX(1.05) skewY(0.5deg); }
-          100% { transform: rotateY(-180deg) scaleX(1) skewY(0deg); }
-        }
-
-        @keyframes flipLeftElastic {
-          0% { transform: rotateY(0deg) scaleX(1); }
-          30% { transform: rotateY(45deg) scaleX(1.02) skewY(-0.3deg); }
-          60% { transform: rotateY(90deg) scaleX(1.05) skewY(-0.5deg); }
-          100% { transform: rotateY(180deg) scaleX(1) skewY(0deg); }
+        .-rotate-y-[180deg] {
+          transform: rotateY(-180deg);
         }
       `}</style>
     </section>
