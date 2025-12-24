@@ -4,7 +4,7 @@ const TOTAL = 30;
 
 export default function SketchbookSection() {
   const [page, setPage] = useState(0);
-  const [flipping, setFlipping] = useState(false);
+  const [flipping, setFlipping] = useState<"next" | "prev" | null>(null);
 
   const dragStartX = useRef(0);
   const dragSide = useRef<"left" | "right" | null>(null);
@@ -12,7 +12,7 @@ export default function SketchbookSection() {
   const canNext = page < TOTAL - 1;
   const canPrev = page > 0;
 
-  /* ---------------- DRAG HANDLERS ---------------- */
+  /* ---------------- DRAG ---------------- */
 
   const onMouseDownRight = (e: React.MouseEvent) => {
     if (!canNext || flipping) return;
@@ -32,26 +32,23 @@ export default function SketchbookSection() {
 
       const delta = e.clientX - dragStartX.current;
 
-      // ileri (sağ sayfa → sola çek)
-      if (dragSide.current === "right" && delta < -15) {
+      // ileri
+      if (dragSide.current === "right" && delta < -20) {
         dragSide.current = null;
-        startFlip(1);
+        startNext();
       }
 
-      // geri (sol sayfa → sağa çek)
-      if (dragSide.current === "left" && delta > 15) {
+      // geri
+      if (dragSide.current === "left" && delta > 20) {
         dragSide.current = null;
-        startFlip(-1);
+        startPrev();
       }
     };
 
-    const onUp = () => {
-      dragSide.current = null;
-    };
+    const onUp = () => (dragSide.current = null);
 
     window.addEventListener("mousemove", onMove);
     window.addEventListener("mouseup", onUp);
-
     return () => {
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseup", onUp);
@@ -60,64 +57,46 @@ export default function SketchbookSection() {
 
   /* ---------------- FLIP ---------------- */
 
-  const startFlip = (dir: 1 | -1) => {
+  const startNext = () => {
     if (flipping) return;
-    setFlipping(true);
-
+    setFlipping("next");
     setTimeout(() => {
-      setPage(p =>
-        dir === 1
-          ? Math.min(p + 2, TOTAL - 1)
-          : Math.max(p - 2, 0)
-      );
-      setFlipping(false);
+      setPage(p => Math.min(p + 2, TOTAL - 1));
+      setFlipping(null);
+    }, 2400);
+  };
+
+  const startPrev = () => {
+    if (flipping) return;
+    setFlipping("prev");
+    setTimeout(() => {
+      setPage(p => Math.max(p - 2, 0));
+      setFlipping(null);
     }, 2400);
   };
 
   /* ---------------- IMAGES ---------------- */
 
-  const leftImage =
+  const left =
     page === 0 ? null : `/sketches/sketch${page}.JPG`;
 
-  const rightImage =
+  const right =
     page === 0
       ? `/sketches/sketch1.JPG`
       : `/sketches/sketch${page + 1}.JPG`;
 
-  const nextRightImage =
+  const nextRight =
     page + 3 <= TOTAL ? `/sketches/sketch${page + 3}.JPG` : null;
 
-  const prevLeftImage =
-    page - 2 >= 0 ? `/sketches/sketch${page - 2}.JPG` : null;
+  const prevLeft =
+    page - 1 >= 1 ? `/sketches/sketch${page - 1}.JPG` : null;
 
-  /* ---------------- STYLES ---------------- */
-
-  const flipStyle: React.CSSProperties = {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    width: "50%",
-    height: "100%",
-    transformStyle: "preserve-3d",
-    transformOrigin: "0% center",
-    transform: flipping ? "rotateY(-180deg)" : "rotateY(0deg)",
-    transition: flipping
-      ? "transform 2.4s cubic-bezier(.22,.61,.36,1)"
-      : "none",
-    cursor: "grab",
-    zIndex: 6,
-  };
+  /* ---------------- VIEW ---------------- */
 
   return (
     <section className="py-32 flex justify-center">
-      <div
-        style={{
-          width: "1000px",
-          height: "700px",
-          perspective: "2600px",
-          position: "relative",
-        }}
-      >
+      <div style={{ width: 1000, height: 700, perspective: 2600, position: "relative" }}>
+
         {/* LEFT PAGE */}
         <div
           onMouseDown={onMouseDownLeft}
@@ -131,11 +110,8 @@ export default function SketchbookSection() {
             zIndex: 1,
           }}
         >
-          {leftImage ? (
-            <img
-              src={leftImage}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
+          {left ? (
+            <img src={left} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-4xl tracking-widest">
               SKETCHES
@@ -155,68 +131,76 @@ export default function SketchbookSection() {
             zIndex: 1,
           }}
         >
-          {nextRightImage && (
+          {nextRight && (
             <img
-              src={nextRightImage}
+              src={nextRight}
               style={{
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-                opacity: flipping ? 1 : 0,
+                opacity: flipping === "next" ? 1 : 0,
                 transition: "opacity 1.2s ease",
               }}
             />
           )}
         </div>
 
-        {/* BOOK SPINE */}
+        {/* SPINE */}
         <div
           style={{
             position: "absolute",
             left: "50%",
-            top: 0,
-            width: "6px",
+            width: 6,
             height: "100%",
             transform: "translateX(-50%)",
             background:
-              "linear-gradient(to right, rgba(0,0,0,0.18), rgba(0,0,0,0.02), rgba(0,0,0,0.18))",
+              "linear-gradient(to right, rgba(0,0,0,.18), rgba(0,0,0,.02), rgba(0,0,0,.18))",
             zIndex: 4,
-            pointerEvents: "none",
           }}
         />
 
-        {/* FLIPPING PAGE (RIGHT → LEFT) */}
+        {/* NEXT FLIP */}
         {canNext && (
           <div
             onMouseDown={onMouseDownRight}
-            style={flipStyle}
+            style={{
+              position: "absolute",
+              right: 0,
+              width: "50%",
+              height: "100%",
+              transformStyle: "preserve-3d",
+              transformOrigin: "0% center",
+              transform: flipping === "next" ? "rotateY(-180deg)" : "none",
+              transition: flipping === "next"
+                ? "transform 2.4s cubic-bezier(.22,.61,.36,1)"
+                : "none",
+              zIndex: 6,
+            }}
           >
-            {/* FRONT */}
-            <img
-              src={rightImage}
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                backfaceVisibility: "hidden",
-              }}
-            />
+            <img src={right} style={{ width: "100%", height: "100%", objectFit: "cover", backfaceVisibility: "hidden" }} />
+            <img src={`/sketches/sketch${page + 2}.JPG`} style={{ position: "absolute", inset: 0, transform: "rotateY(180deg)", backfaceVisibility: "hidden" }} />
+          </div>
+        )}
 
-            {/* BACK */}
-            <img
-              src={`/sketches/sketch${page + 2}.JPG`}
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                transform: "rotateY(180deg)",
-                backfaceVisibility: "hidden",
-              }}
-            />
+        {/* PREV FLIP */}
+        {canPrev && (
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              width: "50%",
+              height: "100%",
+              transformStyle: "preserve-3d",
+              transformOrigin: "100% center",
+              transform: flipping === "prev" ? "rotateY(180deg)" : "none",
+              transition: flipping === "prev"
+                ? "transform 2.4s cubic-bezier(.22,.61,.36,1)"
+                : "none",
+              zIndex: 5,
+            }}
+          >
+            <img src={left!} style={{ width: "100%", height: "100%", objectFit: "cover", backfaceVisibility: "hidden" }} />
+            <img src={prevLeft ?? "/sketches/cover.JPG"} style={{ position: "absolute", inset: 0, transform: "rotateY(180deg)", backfaceVisibility: "hidden" }} />
           </div>
         )}
       </div>
