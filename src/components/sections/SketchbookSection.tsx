@@ -113,7 +113,7 @@ export default function SketchbookSection() {
           Sketchbook
         </h2>
         <p className="text-muted-foreground">
-          El çalışmalarım ve çizimlerim
+          A collection of hand sketches and visual explorations
         </p>
       </header>
       {/* ===== EK BİTTİ ===== */}
