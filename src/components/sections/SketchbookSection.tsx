@@ -1,84 +1,297 @@
-import React, { useRef } from "react";
-import { HTMLFlipBook } from "./HTMLFlipBook"; // senin wrapper component'in
+import { useEffect, useRef, useState } from "react";
 
 const TOTAL = 30;
 
-export default function SketchbookSectionPageFlip() {
-  const flipBookRef = useRef<any>(null);
+export default function SketchbookSection() {
+  const [page, setPage] = useState(0);
+  const [flipping, setFlipping] = useState<"none" | "next" | "prev">("none");
+  const [dragging, setDragging] = useState(false);
+  const [flipProgress, setFlipProgress] = useState(0); // 0-100 arası ilerleme
 
-  // Tüm sayfalar: kapak + sketchler + kapanış kapak
-  const pages = [
-    // Sol Kapak (boş)
-    <div
-      key="cover-left"
-      style={{
-        background: "#f5f2ec",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        fontSize: "48px",
-        fontWeight: "bold",
-        color: "#000",
-      }}
-    >
-      Sketchbook
-    </div>,
-    // İlk sketch
-    <img
-      key="sketch1"
-      src="/sketches/sketch1.JPG"
-      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-    />,
-  ];
+  const startX = useRef(0);
+  const bookRef = useRef<HTMLDivElement>(null);
 
-  // Diğer sketchler
-  for (let i = 2; i <= TOTAL; i++) {
-    pages.push(
-      <img
-        key={`sketch${i}`}
-        src={`/sketches/sketch${i}.JPG`}
-        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-      />
-    );
-  }
+  const canNext = page + 2 < TOTAL;
+  const canPrev = page - 2 >= 0;
 
-  // Son kapak
-  pages.push(
-    <div
-      key="cover-right"
-      style={{
-        background: "#f5f2ec",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        fontSize: "48px",
-        fontWeight: "bold",
-        color: "#000",
-      }}
-    >
-      Sketchbook
-    </div>
-  );
+  /* ---------------- DRAG ---------------- */
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (flipping !== "none") return;
+
+    const book = bookRef.current;
+    if (!book) return;
+
+    const rect = book.getBoundingClientRect();
+    const midX = rect.left + rect.width / 2;
+
+    startX.current = e.clientX;
+    setDragging(true);
+
+    if (e.clientX > midX && canNext) {
+      setFlipping("next");
+      setFlipProgress(0);
+    }
+
+    if (e.clientX < midX && canPrev) {
+      setFlipping("prev");
+      setFlipProgress(0);
+    }
+  };
+
+  /* ---------------- DRAG MOVE ---------------- */
+  useEffect(() => {
+    const move = (e: MouseEvent) => {
+      if (!dragging || flipping === "none") return;
+      const delta = e.clientX - startX.current;
+
+      if (flipping === "next" && delta < -16) {
+        setDragging(false);
+        finalizeFlip("next");
+      }
+
+      if (flipping === "prev" && delta > 16) {
+        setDragging(false);
+        finalizeFlip("prev");
+      }
+    };
+
+    const up = () => setDragging(false);
+
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", up);
+
+    return () => {
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseup", up);
+    };
+  }, [dragging, flipping]);
+
+  /* ---------------- FLIP ANIMATION ---------------- */
+  const finalizeFlip = (dir: "next" | "prev") => {
+    setFlipping(dir);
+    const duration = 2400;
+    const start = performance.now();
+
+    const step = (time: number) => {
+      const progress = Math.min((time - start) / duration, 1);
+      setFlipProgress(progress * 100);
+
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        setPage((p) => (dir === "next" ? p + 2 : p - 2));
+        setFlipping("none");
+        setFlipProgress(0);
+      }
+    };
+
+    requestAnimationFrame(step);
+  };
+
+  /* ---------------- IMAGES ---------------- */
+  const leftImage = page === 0 ? null : `/sketches/sketch${page}.JPG`;
+  const rightImage = page === 0 ? `/sketches/sketch1.JPG` : `/sketches/sketch${page + 1}.JPG`;
+  const nextRightImage = page + 3 <= TOTAL ? `/sketches/sketch${page + 3}.JPG` : null;
+  const prevLeftImage = page - 1 >= 0 ? `/sketches/sketch${page - 1}.JPG` : null;
+
+  /* ---------------- STYLES ---------------- */
+  const rightFlipStyle: React.CSSProperties = {
+    position: "absolute",
+    right: 0,
+    top: 0,
+    width: "50%",
+    height: "100%",
+    transformOrigin: "0% center",
+    transformStyle: "preserve-3d",
+    transform:
+      flipping === "next"
+        ? `rotateY(${(flipProgress / 100) * -180}deg)`
+        : "rotateY(0deg)",
+    transition: flipping === "none" ? "none" : undefined,
+    zIndex: 6,
+  };
+
+  const leftFlipStyle: React.CSSProperties = {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    width: "50%",
+    height: "100%",
+    transformOrigin: "100% center",
+    transformStyle: "preserve-3d",
+    transform:
+      flipping === "prev"
+        ? `rotateY(${(flipProgress / 100) * 180}deg)`
+        : "rotateY(0deg)",
+    transition: flipping === "none" ? "none" : undefined,
+    zIndex: 6,
+  };
+
+  /* ---------------- DISPLAY LOGIC ---------------- */
+  // İleri flip'te %50'den sonra sol sayfa yeni görüntüyü gösterir
+  const leftDisplayImage =
+    flipping === "next" && flipProgress >= 50 && page + 2 <= TOTAL
+      ? `/sketches/sketch${page + 2}.JPG`
+      : leftImage;
+
+  // İleri flip'te sol sayfanın zIndex'i - %50'den sonra arkada kalmalı
+  const leftPageZIndex = flipping === "next" && flipProgress >= 50 ? 1 : 1;
+
+  const rightFrontOpacity =
+    flipping === "next" ? (flipProgress < 50 ? 1 : 0) : 1;
+  const rightBackOpacity =
+    flipping === "next" ? (flipProgress >= 50 ? 1 : 0) : 0;
+
+  const leftFrontOpacity =
+    flipping === "prev" ? (flipProgress < 50 ? 1 : 0) : 1;
+  const leftBackOpacity =
+    flipping === "prev" ? (flipProgress >= 50 ? 1 : 0) : 0;
+
+  // Geri flip sırasında alttan görünecek sol sayfa görüntüsü
+  const prevLeftUnderImage = page - 2 >= 0 ? `/sketches/sketch${page - 2}.JPG` : null;
 
   return (
     <section className="py-32 flex justify-center">
-      <div style={{ width: "1000px", height: "700px" }}>
-        <HTMLFlipBook
-          ref={flipBookRef}
-          className="flip-book"
-          style={{ width: "100%", height: "100%" }}
-          width={1000}
-          height={700}
-          size="stretch"
-          minWidth={315}
-          maxWidth={1000}
-          maxHeight={700}
-          drawShadow={true}
-          flippingTime={1000}
-          showCover={true}
-          mobileScrollSupport={true}
-          children={pages}
-        />
+      <div
+        ref={bookRef}
+        onMouseDown={onMouseDown}
+        style={{
+          width: "1000px",
+          height: "700px",
+          perspective: "2600px",
+          position: "relative",
+        }}
+      >
+        {/* LEFT PAGE UNDER FLIP - Geri flip sırasında alttan görünen sayfa */}
+        {flipping === "prev" && prevLeftUnderImage && (
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              width: "50%",
+              height: "100%",
+              background: "#f5f2ec",
+              zIndex: 1,
+            }}
+          >
+            <img
+              src={prevLeftUnderImage}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          </div>
+        )}
+
+        {/* LEFT PAGE - İleri flip'te %50'den sonra gizlenir */}
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            width: "50%",
+            height: "100%",
+            background: "#f5f2ec",
+            zIndex: leftPageZIndex,
+            // İleri flip'te %50'den sonra gizle çünkü flip elementi üstte
+            display: flipping === "next" && flipProgress >= 50 ? "none" : "block",
+          }}
+        >
+          {leftDisplayImage && (
+            <img
+              src={leftDisplayImage}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          )}
+        </div>
+
+        {/* RIGHT PAGE UNDER FLIP */}
+        <div
+          style={{
+            position: "absolute",
+            right: 0,
+            width: "50%",
+            height: "100%",
+            background: "#f5f2ec",
+            zIndex: 1,
+          }}
+        >
+          {nextRightImage && (
+            <img
+              src={nextRightImage}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          )}
+        </div>
+
+        {/* RIGHT FLIP */}
+        {canNext && (
+          <div style={rightFlipStyle}>
+            <img
+              src={rightImage}
+              style={{
+                position: "absolute",
+                inset: 0,
+                backfaceVisibility: "hidden",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                opacity: rightFrontOpacity,
+              }}
+            />
+            <img
+              src={`/sketches/sketch${page + 2}.JPG`}
+              style={{
+                position: "absolute",
+                inset: 0,
+                transform: "rotateY(180deg)",
+                backfaceVisibility: "hidden",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                opacity: rightBackOpacity,
+              }}
+            />
+          </div>
+        )}
+
+        {/* LEFT FLIP */}
+        {canPrev && (
+          <div style={leftFlipStyle}>
+            <img
+              src={leftImage || ""}
+              style={{
+                position: "absolute",
+                inset: 0,
+                backfaceVisibility: "hidden",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                opacity: leftFrontOpacity,
+              }}
+            />
+            {prevLeftImage && (
+              <img
+                src={prevLeftImage}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  transform: "rotateY(180deg)",
+                  backfaceVisibility: "hidden",
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  opacity: leftBackOpacity,
+                }}
+              />
+            )}
+          </div>
+        )}
       </div>
     </section>
   );
