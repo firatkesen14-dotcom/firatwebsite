@@ -50,10 +50,13 @@ export default function SketchbookSection() {
   /* ---------------- MOUSE ---------------- */
 
   const onMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return; // ✅ SADECE SOL TIK
     startX.current = e.clientX;
   };
 
   const onMouseUp = (e: React.MouseEvent) => {
+    if (e.button !== 0) return; // ✅ SADECE SOL TIK
+
     const delta = e.clientX - startX.current;
     if (delta < -60 && canNext) startFlip("next");
     if (delta > 60 && canPrev) startFlip("prev");
@@ -75,6 +78,7 @@ export default function SketchbookSection() {
       <div
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
+        onContextMenu={(e) => e.preventDefault()} // sağ tık menüsünü kapat
         style={{
           width: 1000,
           height: 700,
