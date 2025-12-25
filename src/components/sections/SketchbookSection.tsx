@@ -104,27 +104,16 @@ export default function SketchbookSection() {
 
   return (
     <section className="py-32 flex flex-col items-center">
-      {/* ================= SKETCHBOOK HEADER (EKLENDİ) ================= */}
-      <div className="mb-12 text-center">
-        <h2
-          style={{
-            fontSize: 48,
-            fontWeight: 600,
-            letterSpacing: "0.1em",
-          }}
-        >
-          SKETCHBOOK
+      {/* ===== EKLENEN TEK BLOK (CONTACT PATTERN) ===== */}
+      <header className="mb-16 text-center">
+        <h2 className="text-4xl md:text-5xl font-light text-foreground tracking-tight mb-4">
+          Sketchbook
         </h2>
-        <p
-          style={{
-            marginTop: 12,
-            fontSize: 16,
-            opacity: 0.7,
-          }}
-        >
+        <p className="text-muted-foreground">
           El çalışmalarım ve çizimlerim
         </p>
-      </div>
+      </header>
+      {/* ===== EK BİTTİ ===== */}
 
       <div
         onMouseDown={onMouseDown}
@@ -257,39 +246,12 @@ export default function SketchbookSection() {
         )}
       </div>
 
-      {/* ================= ARROWS (SADECE EKLENDİ) ================= */}
-      <div
-        style={{
-          marginTop: 24,
-          display: "flex",
-          gap: 40,
-          fontSize: 40,
-          userSelect: "none",
-        }}
-      >
-        <button
-          onClick={() => canPrev && startFlip("prev")}
-          disabled={!canPrev}
-          style={{
-            background: "none",
-            border: "none",
-            cursor: canPrev ? "pointer" : "default",
-            opacity: canPrev ? 1 : 0.3,
-          }}
-        >
+      {/* ARROWS */}
+      <div style={{ marginTop: 24, display: "flex", gap: 40, fontSize: 40 }}>
+        <button onClick={() => canPrev && startFlip("prev")} disabled={!canPrev}>
           ‹
         </button>
-
-        <button
-          onClick={() => canNext && startFlip("next")}
-          disabled={!canNext}
-          style={{
-            background: "none",
-            border: "none",
-            cursor: canNext ? "pointer" : "default",
-            opacity: canNext ? 1 : 0.3,
-          }}
-        >
+        <button onClick={() => canNext && startFlip("next")} disabled={!canNext}>
           ›
         </button>
       </div>
