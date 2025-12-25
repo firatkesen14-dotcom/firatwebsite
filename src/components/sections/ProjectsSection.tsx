@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import ProjectCard from "@/components/ProjectCard";
 
 const projects = [
@@ -47,21 +47,6 @@ const projects = [
 const ProjectsSection = () => {
   const [showAll, setShowAll] = useState(false);
   const visibleProjects = showAll ? projects : projects.slice(0, 1);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const firstProjectRef = useRef<HTMLDivElement>(null);
-  const [videoStyle, setVideoStyle] = useState({ top: 0, height: 0 });
-
-  // Calculate video vertical position and height for NeoNest only
-  useEffect(() => {
-    if (headerRef.current && firstProjectRef.current) {
-      const headerBottom = headerRef.current.getBoundingClientRect().bottom + window.scrollY;
-      const projectTop = firstProjectRef.current.getBoundingClientRect().top + window.scrollY;
-      setVideoStyle({
-        top: headerBottom,
-        height: projectTop - headerBottom,
-      });
-    }
-  }, []);
 
   return (
     <section
@@ -70,7 +55,7 @@ const ProjectsSection = () => {
     >
       <div className="container-wide relative z-10">
         {/* Section Header */}
-        <header ref={headerRef} className="mb-16 md:mb-24">
+        <header className="mb-16 md:mb-24">
           <h2 className="text-4xl md:text-5xl font-light text-foreground tracking-tight mb-4">
             Projects
           </h2>
@@ -83,7 +68,7 @@ const ProjectsSection = () => {
         {/* Projects List */}
         <div className="space-y-24 md:space-y-32">
           {visibleProjects.map((project, index) => (
-            <div key={project.title} className="relative" ref={index === 0 ? firstProjectRef : null}>
+            <div key={project.title} className="relative">
               {/* NeoNest Background Video */}
               {project.title === "NeoNest" && (
                 <video
@@ -91,13 +76,8 @@ const ProjectsSection = () => {
                   loop
                   muted
                   playsInline
-                  className="absolute left-1/2 -translate-x-1/2 w-full object-cover z-0 filter blur-sm"
-                  style={{
-                    top: videoStyle.top,
-                    height: videoStyle.height,
-                    width: "100vw",
-                    opacity: 0.35,
-                  }}
+                  className="absolute top-[-20px] left-1/2 -translate-x-1/2 h-full object-cover z-0 filter blur-sm"
+                  style={{ width: "100vw", maxWidth: "none", opacity: 0.35 }}
                   src="/videos/neonest.mp4"
                 />
               )}
