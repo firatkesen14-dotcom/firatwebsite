@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const TOTAL_SKETCH = 30;
 const TOTAL_PAGES = TOTAL_SKETCH + 2; // cover + back cover
@@ -9,6 +9,7 @@ export default function SketchbookSection() {
   const [page, setPage] = useState(0); // sol sayfa index
   const [flip, setFlip] = useState<FlipDir>("none");
   const [progress, setProgress] = useState(0);
+  const [dragging, setDragging] = useState(false);
 
   const startX = useRef(0);
 
@@ -26,7 +27,8 @@ export default function SketchbookSection() {
   /* ---------------- FLIP ---------------- */
 
   const startFlip = (dir: FlipDir) => {
-    if (dir === "none") return;
+    if (flip !== "none") return;
+
     setFlip(dir);
     const start = performance.now();
     const duration = 1200;
@@ -50,17 +52,44 @@ export default function SketchbookSection() {
   /* ---------------- MOUSE ---------------- */
 
   const onMouseDown = (e: React.MouseEvent) => {
-    if (e.button !== 0) return; // ✅ SADECE SOL TIK
+    if (e.button !== 0) return; // sadece sol tık
     startX.current = e.clientX;
+    setDragging(true);
   };
 
-  const onMouseUp = (e: React.MouseEvent) => {
-    if (e.button !== 0) return; // ✅ SADECE SOL TIK
-
-    const delta = e.clientX - startX.current;
-    if (delta < -60 && canNext) startFlip("next");
-    if (delta > 60 && canPrev) startFlip("prev");
+  const onMouseUp = () => {
+    setDragging(false);
   };
+
+  /* ---------------- DRAG MOVE ---------------- */
+
+  useEffect(() => {
+    if (!dragging) return;
+
+    const move = (e: MouseEvent) => {
+      const delta = e.clientX - startX.current;
+
+      if (delta < -60 && canNext) {
+        setDragging(false);
+        startFlip("next");
+      }
+
+      if (delta > 60 && canPrev) {
+        setDragging(false);
+        startFlip("prev");
+      }
+    };
+
+    const up = () => setDragging(false);
+
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", up);
+
+    return () => {
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseup", up);
+    };
+  }, [dragging, canNext, canPrev]);
 
   /* ---------------- RENDER ---------------- */
 
@@ -78,13 +107,15 @@ export default function SketchbookSection() {
       <div
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
-        onContextMenu={(e) => e.preventDefault()} // sağ tık menüsünü kapat
+        onContextMenu={(e) => e.preventDefault()}
         style={{
           width: 1000,
           height: 700,
           position: "relative",
           perspective: 2400,
           background: "#ddd",
+          userSelect: "none",
+          cursor: "grab",
         }}
       >
         {/* LEFT STATIC */}
