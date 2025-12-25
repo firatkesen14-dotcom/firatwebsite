@@ -51,19 +51,8 @@ const ProjectsSection = () => {
   return (
     <section
       id="projects"
-      className="py-24 md:py-32 border-t border-border/50 relative overflow-hidden"
+      className="py-24 md:py-32 border-t border-border/50 relative"
     >
-      {/* Background Video */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute top-0 left-0 w-full h-full object-cover z-0 filter blur-sm"
-        style={{ opacity: 0.35 }}
-        src="/videos/neonest.mp4"
-      />
-
       <div className="container-wide relative z-10">
         {/* Section Header */}
         <header className="mb-16 md:mb-24">
@@ -79,8 +68,22 @@ const ProjectsSection = () => {
         {/* Projects List */}
         <div className="space-y-24 md:space-y-32">
           {visibleProjects.map((project, index) => (
-            <div key={project.title}>
+            <div key={project.title} className="relative">
+              {/* NeoNest Background Video */}
+              {project.title === "NeoNest" && (
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="absolute top-0 left-0 w-full h-full object-cover z-0 filter blur-sm"
+                  style={{ opacity: 0.35 }}
+                  src="/videos/neonest.mp4"
+                />
+              )}
+
               <ProjectCard {...project} index={index} />
+
               {index < visibleProjects.length - 1 && (
                 <div className="section-divider mt-24 md:mt-32" />
               )}
