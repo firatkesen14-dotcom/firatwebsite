@@ -12,8 +12,8 @@ const AboutSection = () => {
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
 
-    // ÇOK HAFİF değerler (premium look)
-    const intensity = 8;
+    // Mobilde intensity azalt
+    const intensity = window.innerWidth < 768 ? 4 : 8;
 
     imageRef.current.style.transform = `
       translate(${x * intensity}px, ${y * intensity}px)
@@ -34,22 +34,22 @@ const AboutSection = () => {
   };
 
   return (
-    <section id="about" className="py-24 md:py-32 border-t border-border/50">
+    <section id="about" className="py-16 sm:py-20 md:py-32 border-t border-border/50">
       <div className="container-narrow">
-        <header className="mb-16 md:mb-24">
-          <h2 className="text-4xl md:text-5xl font-light text-foreground tracking-tight">
+        <header className="mb-12 sm:mb-16 md:mb-24">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-foreground tracking-tight">
             About
           </h2>
         </header>
 
-        <div className="grid lg:grid-cols-5 gap-12 lg:gap-16">
+        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-5 gap-8 sm:gap-12 lg:gap-16">
           {/* PROFILE WITH DEPTH */}
-          <div className="lg:col-span-2">
+          <div className="md:col-span-2 mb-8 md:mb-0">
             <div
               ref={containerRef}
               onMouseMove={handleMouseMove}
               onMouseLeave={resetTransform}
-              className="relative aspect-[3/4] overflow-hidden rounded-sm bg-surface-elevated cursor-default"
+              className="relative aspect-[3/4] sm:aspect-[3/4] md:aspect-[3/4] overflow-hidden rounded-sm bg-surface-elevated cursor-default"
             >
               {/* Depth map */}
               <img
@@ -70,8 +70,8 @@ const AboutSection = () => {
           </div>
 
           {/* BIO */}
-          <div className="lg:col-span-3 space-y-8">
-            <p className="text-lg md:text-xl text-secondary-foreground leading-relaxed">
+          <div className="md:col-span-3 space-y-6 sm:space-y-8">
+            <p className="text-base sm:text-lg md:text-xl text-secondary-foreground leading-relaxed">
               Fırat Kesen is an industrial designer educated at Middle East Technical
               University (METU). His design practice focuses on product, system, and
               spatial design, combining conceptual thinking with technical awareness.
@@ -79,7 +79,7 @@ const AboutSection = () => {
               urban spaces, and consumer-oriented solutions.
             </p>
 
-            <p className="text-secondary-foreground leading-relaxed">
+            <p className="text-secondary-foreground text-base sm:text-lg leading-relaxed">
               Throughout his education and professional experience, he worked in
               production-oriented environments ranging from manufacturing facilities
               and energy companies to a design studio, gaining hands-on experience
@@ -89,14 +89,14 @@ const AboutSection = () => {
               perspective.
             </p>
 
-            <div className="section-divider my-8" />
+            <div className="section-divider my-6 sm:my-8" />
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <h3 className="text-sm text-muted-foreground tracking-wider uppercase mb-3">
+                <h3 className="text-sm text-muted-foreground tracking-wider uppercase mb-2 sm:mb-3">
                   Focus Areas
                 </h3>
-                <ul className="space-y-2 text-secondary-foreground">
+                <ul className="space-y-1 sm:space-y-2 text-secondary-foreground text-sm sm:text-base">
                   <li>Product Design</li>
                   <li>System Design</li>
                   <li>Spatial Design</li>
@@ -105,10 +105,10 @@ const AboutSection = () => {
               </div>
 
               <div>
-                <h3 className="text-sm text-muted-foreground tracking-wider uppercase mb-3">
+                <h3 className="text-sm text-muted-foreground tracking-wider uppercase mb-2 sm:mb-3">
                   Experience
                 </h3>
-                <ul className="space-y-2 text-secondary-foreground">
+                <ul className="space-y-1 sm:space-y-2 text-secondary-foreground text-sm sm:text-base">
                   <li>Manufacturing</li>
                   <li>Design Studio</li>
                   <li>Energy Sector</li>
@@ -118,15 +118,13 @@ const AboutSection = () => {
             </div>
 
             <div className="pt-4">
-              <h3 className="text-sm text-muted-foreground tracking-wider uppercase mb-3">
+              <h3 className="text-sm text-muted-foreground tracking-wider uppercase mb-2 sm:mb-3">
                 Education
               </h3>
-              <p className="text-secondary-foreground">
+              <p className="text-secondary-foreground text-sm sm:text-base">
                 Middle East Technical University (METU)
                 <br />
-                <span className="text-muted-foreground">
-                  Industrial Design
-                </span>
+                <span className="text-muted-foreground">Industrial Design</span>
               </p>
             </div>
           </div>
