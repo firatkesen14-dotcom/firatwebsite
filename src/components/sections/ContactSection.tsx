@@ -32,21 +32,31 @@ const ContactSection = () => {
           {/* Social Links */}
           <div className="flex items-center justify-center gap-8">
             <a
-              href="#"
+              href="https://www.fiverr.com/firatkesen/buying?source=avatar_menu_profile"
+              target="_blank"
+              rel="noopener noreferrer"
               className="group flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
             >
               <span className="tracking-wide">Fiverr</span>
-              <ExternalLink size={14} className="opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
+              <ExternalLink
+                size={14}
+                className="opacity-50 group-hover:opacity-100 transition-opacity duration-300"
+              />
             </a>
 
             <span className="text-border">|</span>
 
             <a
-              href="#"
+              href="https://www.upwork.com/freelancers/~012282e88904824f59"
+              target="_blank"
+              rel="noopener noreferrer"
               className="group flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
             >
               <span className="tracking-wide">Upwork</span>
-              <ExternalLink size={14} className="opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
+              <ExternalLink
+                size={14}
+                className="opacity-50 group-hover:opacity-100 transition-opacity duration-300"
+              />
             </a>
           </div>
         </div>
