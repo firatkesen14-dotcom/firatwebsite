@@ -31,6 +31,7 @@ export default function SketchbookSection() {
     const step = (t: number) => {
       const p = Math.min((t - start) / duration, 1);
       setProgress(p);
+
       if (p < 1) {
         requestAnimationFrame(step);
       } else {
@@ -96,7 +97,7 @@ export default function SketchbookSection() {
       id="sketchbook"
       className="py-32 flex flex-col items-center border-t border-border/50"
     >
-      {/* ===== HEADER ===== */}
+      {/* ===== EKLENEN TEK BLOK (CONTACT PATTERN) ===== */}
       <header className="mb-16 text-center">
         <h2 className="text-4xl md:text-5xl font-light text-foreground tracking-tight mb-4">
           Sketchbook
@@ -105,8 +106,8 @@ export default function SketchbookSection() {
           A collection of hand sketches and visual explorations
         </p>
       </header>
+      {/* ===== EK BİTTİ ===== */}
 
-      {/* ===== FLIP CONTAINER ===== */}
       <div
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
@@ -139,9 +140,7 @@ export default function SketchbookSection() {
 
         {/* NEXT UNDER */}
         {flip === "next" && (
-          <div
-            style={{ position: "absolute", right: 0, width: "50%", height: "100%", zIndex: 1 }}
-          >
+          <div style={{ position: "absolute", right: 0, width: "50%", height: "100%", zIndex: 1 }}>
             <img
               src={pageSrc(nextRight)}
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
@@ -151,9 +150,7 @@ export default function SketchbookSection() {
 
         {/* PREV UNDER */}
         {flip === "prev" && (
-          <div
-            style={{ position: "absolute", left: 0, width: "50%", height: "100%", zIndex: 1 }}
-          >
+          <div style={{ position: "absolute", left: 0, width: "50%", height: "100%", zIndex: 1 }}>
             <img
               src={pageSrc(prevLeft)}
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
@@ -252,7 +249,7 @@ export default function SketchbookSection() {
         </button>
       </div>
 
-      {/* ===== RESPONSIVE CSS ===== */}
+      {/* ===== RESPONSIVE SKETCHBOOK ===== */}
       <style jsx>{`
         @media (max-width: 1024px) {
           #sketchbook > div:first-child {
@@ -264,7 +261,7 @@ export default function SketchbookSection() {
         @media (max-width: 640px) {
           #sketchbook > div:first-child {
             width: 100% !important;
-            height: auto !important;
+            height: calc(100vw * 0.7) !important; /* sayfa oranını koru, mobilde uygun boyut */
           }
         }
       `}</style>
