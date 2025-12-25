@@ -9,6 +9,7 @@ const projects = [
       "A comprehensive neonatal care system designed to provide optimal thermal regulation and monitoring for premature infants, integrating advanced sensors with intuitive caregiver interfaces.",
     modelSrc: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
     images: ["/placeholder.svg", "/placeholder.svg"],
+    videoBg: "/videos/neonest.mp4", // Yeni alan
   },
   {
     title: "Angoray",
@@ -46,14 +47,13 @@ const projects = [
 
 const ProjectsSection = () => {
   const [showAll, setShowAll] = useState(false);
-
   const visibleProjects = showAll ? projects : projects.slice(0, 1);
 
   return (
-    <section id="projects" className="py-24 md:py-32 border-t border-border/50">
-      <div className="container-wide">
+    <section id="projects" className="py-24 md:py-32 border-t border-border/50 relative">
+      <div className="container-wide relative z-10">
         {/* Section Header */}
-        <header className="mb-16 md:mb-24">
+        <header className="mb-16 md:mb-24 relative z-10">
           <h2 className="text-4xl md:text-5xl font-light text-foreground tracking-tight mb-4">
             Projects
           </h2>
@@ -64,9 +64,21 @@ const ProjectsSection = () => {
         </header>
 
         {/* Projects List */}
-        <div className="space-y-24 md:space-y-32">
+        <div className="space-y-24 md:space-y-32 relative z-10">
           {visibleProjects.map((project, index) => (
-            <div key={project.title}>
+            <div key={project.title} className="relative">
+              {/* Eğer proje videoluysa background */}
+              {project.videoBg && (
+                <video
+                  src={project.videoBg}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover filter blur-xl opacity-30 -z-10"
+                />
+              )}
+
               <ProjectCard {...project} index={index} />
               {index < visibleProjects.length - 1 && (
                 <div className="section-divider mt-24 md:mt-32" />
@@ -76,7 +88,7 @@ const ProjectsSection = () => {
 
           {/* View More Button */}
           {!showAll && (
-            <div className="text-center mt-12">
+            <div className="text-center mt-12 relative z-10">
               <button
                 onClick={() => setShowAll(true)}
                 className="px-6 py-3 border border-foreground rounded-lg text-foreground hover:bg-foreground hover:text-background transition"
