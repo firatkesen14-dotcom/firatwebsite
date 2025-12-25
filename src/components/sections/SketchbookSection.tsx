@@ -104,6 +104,28 @@ export default function SketchbookSection() {
 
   return (
     <section className="py-32 flex flex-col items-center">
+      {/* ================= SKETCHBOOK HEADER (EKLENDİ) ================= */}
+      <div className="mb-12 text-center">
+        <h2
+          style={{
+            fontSize: 48,
+            fontWeight: 600,
+            letterSpacing: "0.1em",
+          }}
+        >
+          SKETCHBOOK
+        </h2>
+        <p
+          style={{
+            marginTop: 12,
+            fontSize: 16,
+            opacity: 0.7,
+          }}
+        >
+          El çalışmalarım ve çizimlerim
+        </p>
+      </div>
+
       <div
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
