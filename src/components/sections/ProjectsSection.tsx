@@ -76,8 +76,8 @@ const ProjectsSection = () => {
                   loop
                   muted
                   playsInline
-                  className="absolute top-0 left-0 w-full h-full object-cover z-0 filter blur-sm"
-                  style={{ opacity: 0.35 }}
+                  className="absolute top-0 left-1/2 -translate-x-1/2 h-full object-cover z-0 filter blur-sm"
+                  style={{ width: "100vw", maxWidth: "none", opacity: 0.35 }}
                   src="/videos/neonest.mp4"
                 />
               )}
