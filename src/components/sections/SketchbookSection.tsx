@@ -103,7 +103,10 @@ export default function SketchbookSection() {
   const prevRight = page - 1;
 
   return (
-    <section className="py-32 flex flex-col items-center">
+    <section
+      id="sketchbook"
+      className="py-32 flex flex-col items-center"
+    >
       {/* ===== EKLENEN TEK BLOK (CONTACT PATTERN) ===== */}
       <header className="mb-16 text-center">
         <h2 className="text-4xl md:text-5xl font-light text-foreground tracking-tight mb-4">
