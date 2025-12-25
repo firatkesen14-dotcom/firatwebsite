@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 const TOTAL_SKETCH = 30;
 const TOTAL_PAGES = TOTAL_SKETCH + 2; // cover + back cover
+
 type FlipDir = "none" | "next" | "prev";
 
 export default function SketchbookSection() {
@@ -9,22 +10,24 @@ export default function SketchbookSection() {
   const [flip, setFlip] = useState<FlipDir>("none");
   const [progress, setProgress] = useState(0);
   const [dragging, setDragging] = useState(false);
-
   const startX = useRef(0);
   const canNext = page + 2 < TOTAL_PAGES;
   const canPrev = page - 2 >= 0;
 
+  /* ---------------- PAGE SRC ---------------- */
   const pageSrc = (i: number) => {
     if (i === 0) return "/sketches/cover.JPG";
     if (i === TOTAL_PAGES - 1) return "/sketches/backcover.JPG";
     return `/sketches/sketch${i}.JPG`;
   };
 
+  /* ---------------- FLIP ---------------- */
   const startFlip = (dir: FlipDir) => {
     if (flip !== "none") return;
     setFlip(dir);
     const start = performance.now();
     const duration = 1200;
+
     const step = (t: number) => {
       const p = Math.min((t - start) / duration, 1);
       setProgress(p);
@@ -36,38 +39,51 @@ export default function SketchbookSection() {
         setProgress(0);
       }
     };
+
     requestAnimationFrame(step);
   };
 
+  /* ---------------- MOUSE ---------------- */
   const onMouseDown = (e: React.MouseEvent) => {
-    if (e.button !== 0) return;
+    if (e.button !== 0) return; // sadece sol tık
     startX.current = e.clientX;
     setDragging(true);
   };
-  const onMouseUp = () => setDragging(false);
 
+  const onMouseUp = () => {
+    setDragging(false);
+  };
+
+  /* ---------------- DRAG MOVE ---------------- */
   useEffect(() => {
     if (!dragging) return;
+
     const move = (e: MouseEvent) => {
       const delta = e.clientX - startX.current;
+
       if (delta < -60 && canNext) {
         setDragging(false);
         startFlip("next");
       }
+
       if (delta > 60 && canPrev) {
         setDragging(false);
         startFlip("prev");
       }
     };
+
     const up = () => setDragging(false);
+
     window.addEventListener("mousemove", move);
     window.addEventListener("mouseup", up);
+
     return () => {
       window.removeEventListener("mousemove", move);
       window.removeEventListener("mouseup", up);
     };
   }, [dragging, canNext, canPrev]);
 
+  /* ---------------- RENDER ---------------- */
   const leftIndex = page;
   const rightIndex = page + 1;
   const nextLeft = page + 2;
@@ -76,7 +92,11 @@ export default function SketchbookSection() {
   const prevRight = page - 1;
 
   return (
-    <section id="sketchbook" className="py-32 flex flex-col items-center border-t border-border/50">
+    <section
+      id="sketchbook"
+      className="py-32 flex flex-col items-center border-t border-border/50"
+    >
+      {/* ===== HEADER ===== */}
       <header className="mb-16 text-center">
         <h2 className="text-4xl md:text-5xl font-light text-foreground tracking-tight mb-4">
           Sketchbook
@@ -86,16 +106,15 @@ export default function SketchbookSection() {
         </p>
       </header>
 
-      {/* RESPONSIVE WRAPPER */}
+      {/* ===== FLIP CONTAINER ===== */}
       <div
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
         onContextMenu={(e) => e.preventDefault()}
-        className="relative"
         style={{
-          width: "100%",
-          maxWidth: 1000,
+          width: 1000,
           height: 700,
+          position: "relative",
           perspective: 2400,
           background: "#ddd",
           userSelect: "none",
@@ -104,25 +123,41 @@ export default function SketchbookSection() {
       >
         {/* LEFT STATIC */}
         <div style={{ position: "absolute", left: 0, width: "50%", height: "100%" }}>
-          <img src={pageSrc(leftIndex)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <img
+            src={pageSrc(leftIndex)}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
         </div>
 
         {/* RIGHT STATIC */}
         <div style={{ position: "absolute", right: 0, width: "50%", height: "100%" }}>
-          <img src={pageSrc(rightIndex)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <img
+            src={pageSrc(rightIndex)}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
         </div>
 
         {/* NEXT UNDER */}
         {flip === "next" && (
-          <div style={{ position: "absolute", right: 0, width: "50%", height: "100%", zIndex: 1 }}>
-            <img src={pageSrc(nextRight)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <div
+            style={{ position: "absolute", right: 0, width: "50%", height: "100%", zIndex: 1 }}
+          >
+            <img
+              src={pageSrc(nextRight)}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
           </div>
         )}
 
         {/* PREV UNDER */}
         {flip === "prev" && (
-          <div style={{ position: "absolute", left: 0, width: "50%", height: "100%", zIndex: 1 }}>
-            <img src={pageSrc(prevLeft)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <div
+            style={{ position: "absolute", left: 0, width: "50%", height: "100%", zIndex: 1 }}
+          >
+            <img
+              src={pageSrc(prevLeft)}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
           </div>
         )}
 
@@ -142,11 +177,26 @@ export default function SketchbookSection() {
           >
             <img
               src={pageSrc(rightIndex)}
-              style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", width: "100%", height: "100%", objectFit: "cover" }}
+              style={{
+                position: "absolute",
+                inset: 0,
+                backfaceVisibility: "hidden",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
             />
             <img
               src={pageSrc(nextLeft)}
-              style={{ position: "absolute", inset: 0, transform: "rotateY(180deg)", backfaceVisibility: "hidden", width: "100%", height: "100%", objectFit: "cover" }}
+              style={{
+                position: "absolute",
+                inset: 0,
+                transform: "rotateY(180deg)",
+                backfaceVisibility: "hidden",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
             />
           </div>
         )}
@@ -167,18 +217,33 @@ export default function SketchbookSection() {
           >
             <img
               src={pageSrc(leftIndex)}
-              style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", width: "100%", height: "100%", objectFit: "cover" }}
+              style={{
+                position: "absolute",
+                inset: 0,
+                backfaceVisibility: "hidden",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
             />
             <img
               src={pageSrc(prevRight)}
-              style={{ position: "absolute", inset: 0, transform: "rotateY(180deg)", backfaceVisibility: "hidden", width: "100%", height: "100%", objectFit: "cover" }}
+              style={{
+                position: "absolute",
+                inset: 0,
+                transform: "rotateY(180deg)",
+                backfaceVisibility: "hidden",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
             />
           </div>
         )}
       </div>
 
       {/* ARROWS */}
-      <div className="mt-6 sm:mt-8 flex gap-10 text-4xl sm:text-5xl">
+      <div style={{ marginTop: 24, display: "flex", gap: 40, fontSize: 40 }}>
         <button onClick={() => canPrev && startFlip("prev")} disabled={!canPrev}>
           ‹
         </button>
@@ -186,6 +251,23 @@ export default function SketchbookSection() {
           ›
         </button>
       </div>
+
+      {/* ===== RESPONSIVE CSS ===== */}
+      <style jsx>{`
+        @media (max-width: 1024px) {
+          #sketchbook > div:first-child {
+            width: 90% !important;
+            height: auto !important;
+          }
+        }
+
+        @media (max-width: 640px) {
+          #sketchbook > div:first-child {
+            width: 100% !important;
+            height: auto !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }
