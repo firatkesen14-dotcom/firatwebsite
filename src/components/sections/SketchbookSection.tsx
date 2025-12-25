@@ -128,10 +128,14 @@ export default function SketchbookSection() {
   };
 
   /* ---------------- DISPLAY LOGIC ---------------- */
+  // İleri flip'te %50'den sonra sol sayfa yeni görüntüyü gösterir
   const leftDisplayImage =
     flipping === "next" && flipProgress >= 50 && page + 2 <= TOTAL
       ? `/sketches/sketch${page + 2}.JPG`
       : leftImage;
+
+  // İleri flip'te sol sayfanın zIndex'i - %50'den sonra arkada kalmalı
+  const leftPageZIndex = flipping === "next" && flipProgress >= 50 ? 1 : 1;
 
   const rightFrontOpacity =
     flipping === "next" ? (flipProgress < 50 ? 1 : 0) : 1;
@@ -142,6 +146,9 @@ export default function SketchbookSection() {
     flipping === "prev" ? (flipProgress < 50 ? 1 : 0) : 1;
   const leftBackOpacity =
     flipping === "prev" ? (flipProgress >= 50 ? 1 : 0) : 0;
+
+  // Geri flip sırasında alttan görünecek sol sayfa görüntüsü
+  const prevLeftUnderImage = page - 2 >= 0 ? `/sketches/sketch${page - 2}.JPG` : null;
 
   return (
     <section className="py-32 flex justify-center">
@@ -155,7 +162,30 @@ export default function SketchbookSection() {
           position: "relative",
         }}
       >
-        {/* LEFT PAGE */}
+        {/* LEFT PAGE UNDER FLIP - Geri flip sırasında alttan görünen sayfa */}
+        {flipping === "prev" && prevLeftUnderImage && (
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              width: "50%",
+              height: "100%",
+              background: "#f5f2ec",
+              zIndex: 1,
+            }}
+          >
+            <img
+              src={prevLeftUnderImage}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          </div>
+        )}
+
+        {/* LEFT PAGE - İleri flip'te %50'den sonra gizlenir */}
         <div
           style={{
             position: "absolute",
@@ -163,7 +193,9 @@ export default function SketchbookSection() {
             width: "50%",
             height: "100%",
             background: "#f5f2ec",
-            zIndex: 1,
+            zIndex: leftPageZIndex,
+            // İleri flip'te %50'den sonra gizle çünkü flip elementi üstte
+            display: flipping === "next" && flipProgress >= 50 ? "none" : "block",
           }}
         >
           {leftDisplayImage && (
