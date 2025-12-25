@@ -92,7 +92,7 @@ export default function SketchbookSection() {
   const leftImage = page === 0 ? null : `/sketches/sketch${page}.JPG`;
   const rightImage = page === 0 ? `/sketches/sketch1.JPG` : `/sketches/sketch${page + 1}.JPG`;
   const nextRightImage = page + 3 <= TOTAL ? `/sketches/sketch${page + 3}.JPG` : null;
-  const prevLeftImage = page - 1 >= 0 ? `/sketches/sketch${page - 2}.JPG` : null;
+  const prevLeftImage = page - 1 >= 0 ? `/sketches/sketch${page - 1}.JPG` : null;
 
   /* ---------------- STYLES ---------------- */
   const rightFlipStyle: React.CSSProperties = {
