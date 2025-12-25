@@ -17,7 +17,6 @@ export default function SketchbookSection() {
   const canPrev = page - 2 >= 0;
 
   /* ---------------- PAGE SRC ---------------- */
-
   const pageSrc = (i: number) => {
     if (i === 0) return "/sketches/cover.JPG";
     if (i === TOTAL_PAGES - 1) return "/sketches/backcover.JPG";
@@ -25,7 +24,6 @@ export default function SketchbookSection() {
   };
 
   /* ---------------- FLIP ---------------- */
-
   const startFlip = (dir: FlipDir) => {
     if (flip !== "none") return;
 
@@ -50,19 +48,14 @@ export default function SketchbookSection() {
   };
 
   /* ---------------- MOUSE ---------------- */
-
   const onMouseDown = (e: React.MouseEvent) => {
-    if (e.button !== 0) return; // sadece sol tık
+    if (e.button !== 0) return;
     startX.current = e.clientX;
     setDragging(true);
   };
-
-  const onMouseUp = () => {
-    setDragging(false);
-  };
+  const onMouseUp = () => setDragging(false);
 
   /* ---------------- DRAG MOVE ---------------- */
-
   useEffect(() => {
     if (!dragging) return;
 
@@ -73,7 +66,6 @@ export default function SketchbookSection() {
         setDragging(false);
         startFlip("next");
       }
-
       if (delta > 60 && canPrev) {
         setDragging(false);
         startFlip("prev");
@@ -84,7 +76,6 @@ export default function SketchbookSection() {
 
     window.addEventListener("mousemove", move);
     window.addEventListener("mouseup", up);
-
     return () => {
       window.removeEventListener("mousemove", move);
       window.removeEventListener("mouseup", up);
@@ -92,78 +83,66 @@ export default function SketchbookSection() {
   }, [dragging, canNext, canPrev]);
 
   /* ---------------- RENDER ---------------- */
-
   const leftIndex = page;
   const rightIndex = page + 1;
-
   const nextLeft = page + 2;
   const nextRight = page + 3;
-
   const prevLeft = page - 2;
   const prevRight = page - 1;
 
   return (
     <section
       id="sketchbook"
-      className="py-32 flex flex-col items-center border-t border-border/50"
+      className="py-24 sm:py-28 md:py-32 flex flex-col items-center border-t border-border/50"
     >
-      {/* ===== EKLENEN TEK BLOK (CONTACT PATTERN) ===== */}
-      <header className="mb-16 text-center">
-        <h2 className="text-4xl md:text-5xl font-light text-foreground tracking-tight mb-4">
+      <header className="mb-12 sm:mb-16 text-center">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-foreground tracking-tight mb-4">
           Sketchbook
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-sm sm:text-base">
           A collection of hand sketches and visual explorations
         </p>
       </header>
-      {/* ===== EK BİTTİ ===== */}
 
       <div
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
         onContextMenu={(e) => e.preventDefault()}
-        style={{
-          width: 1000,
-          height: 700,
-          position: "relative",
-          perspective: 2400,
-          background: "#ddd",
-          userSelect: "none",
-          cursor: "grab",
-        }}
+        className="relative w-full max-w-[1000px] aspect-[10/7] sm:aspect-[10/7] md:aspect-[10/7] bg-gray-300 select-none cursor-grab"
+        style={{ perspective: 2400 }}
       >
         {/* LEFT STATIC */}
-        <div style={{ position: "absolute", left: 0, width: "50%", height: "100%" }}>
+        <div className="absolute left-0 w-1/2 h-full">
           <img
             src={pageSrc(leftIndex)}
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            className="w-full h-full object-cover"
           />
         </div>
 
         {/* RIGHT STATIC */}
-        <div style={{ position: "absolute", right: 0, width: "50%", height: "100%" }}>
+        <div className="absolute right-0 w-1/2 h-full">
           <img
             src={pageSrc(rightIndex)}
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            className="w-full h-full object-cover"
           />
         </div>
 
         {/* NEXT UNDER */}
         {flip === "next" && (
-          <div style={{ position: "absolute", right: 0, width: "50%", height: "100%", zIndex: 1 }}>
+          <div className="absolute right-0 w-1/2 h-full z-10">
             <img
               src={pageSrc(nextRight)}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              className="w-full h-full object-cover"
             />
           </div>
         )}
 
         {/* PREV UNDER */}
         {flip === "prev" && (
-          <div style={{ position: "absolute", left: 0, width: "50%", height: "100%", zIndex: 1 }}>
+          <div className="absolute left-0 w-1/2 h-full z-10">
             <img
               src={pageSrc(prevLeft)}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              className="w-full h-full object-cover"
             />
           </div>
         )}
@@ -171,39 +150,20 @@ export default function SketchbookSection() {
         {/* RIGHT FLIP */}
         {flip === "next" && (
           <div
+            className="absolute right-0 w-1/2 h-full z-20"
             style={{
-              position: "absolute",
-              right: 0,
-              width: "50%",
-              height: "100%",
               transformOrigin: "0% center",
               transform: `rotateY(${-180 * progress}deg)`,
               transformStyle: "preserve-3d",
-              zIndex: 5,
             }}
           >
             <img
               src={pageSrc(rightIndex)}
-              style={{
-                position: "absolute",
-                inset: 0,
-                backfaceVisibility: "hidden",
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
+              className="absolute inset-0 w-full h-full object-cover backface-hidden"
             />
             <img
               src={pageSrc(nextLeft)}
-              style={{
-                position: "absolute",
-                inset: 0,
-                transform: "rotateY(180deg)",
-                backfaceVisibility: "hidden",
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
+              className="absolute inset-0 w-full h-full object-cover rotate-y-180 backface-hidden"
             />
           </div>
         )}
@@ -211,46 +171,27 @@ export default function SketchbookSection() {
         {/* LEFT FLIP */}
         {flip === "prev" && (
           <div
+            className="absolute left-0 w-1/2 h-full z-20"
             style={{
-              position: "absolute",
-              left: 0,
-              width: "50%",
-              height: "100%",
               transformOrigin: "100% center",
               transform: `rotateY(${180 * progress}deg)`,
               transformStyle: "preserve-3d",
-              zIndex: 5,
             }}
           >
             <img
               src={pageSrc(leftIndex)}
-              style={{
-                position: "absolute",
-                inset: 0,
-                backfaceVisibility: "hidden",
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
+              className="absolute inset-0 w-full h-full object-cover backface-hidden"
             />
             <img
               src={pageSrc(prevRight)}
-              style={{
-                position: "absolute",
-                inset: 0,
-                transform: "rotateY(180deg)",
-                backfaceVisibility: "hidden",
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
+              className="absolute inset-0 w-full h-full object-cover rotate-y-180 backface-hidden"
             />
           </div>
         )}
       </div>
 
       {/* ARROWS */}
-      <div style={{ marginTop: 24, display: "flex", gap: 40, fontSize: 40 }}>
+      <div className="mt-6 sm:mt-8 flex gap-8 sm:gap-10 text-2xl sm:text-3xl md:text-4xl">
         <button onClick={() => canPrev && startFlip("prev")} disabled={!canPrev}>
           ‹
         </button>
