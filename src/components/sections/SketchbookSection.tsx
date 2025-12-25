@@ -10,7 +10,9 @@ export default function SketchbookSection() {
   const [flip, setFlip] = useState<FlipDir>("none");
   const [progress, setProgress] = useState(0);
   const [dragging, setDragging] = useState(false);
+
   const startX = useRef(0);
+
   const canNext = page + 2 < TOTAL_PAGES;
   const canPrev = page - 2 >= 0;
 
@@ -24,6 +26,7 @@ export default function SketchbookSection() {
   /* ---------------- FLIP ---------------- */
   const startFlip = (dir: FlipDir) => {
     if (flip !== "none") return;
+
     setFlip(dir);
     const start = performance.now();
     const duration = 1200;
@@ -113,8 +116,10 @@ export default function SketchbookSection() {
         onMouseUp={onMouseUp}
         onContextMenu={(e) => e.preventDefault()}
         style={{
-          width: 1000,
-          height: 700,
+          width: "90vw", // responsive genişlik
+          maxWidth: 1000, // pc için maksimum
+          aspectRatio: "10/7", // eski 1000x700 oranı
+          height: "auto",
           position: "relative",
           perspective: 2400,
           background: "#ddd",
@@ -140,7 +145,15 @@ export default function SketchbookSection() {
 
         {/* NEXT UNDER */}
         {flip === "next" && (
-          <div style={{ position: "absolute", right: 0, width: "50%", height: "100%", zIndex: 1 }}>
+          <div
+            style={{
+              position: "absolute",
+              right: 0,
+              width: "50%",
+              height: "100%",
+              zIndex: 1,
+            }}
+          >
             <img
               src={pageSrc(nextRight)}
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
@@ -150,7 +163,15 @@ export default function SketchbookSection() {
 
         {/* PREV UNDER */}
         {flip === "prev" && (
-          <div style={{ position: "absolute", left: 0, width: "50%", height: "100%", zIndex: 1 }}>
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              width: "50%",
+              height: "100%",
+              zIndex: 1,
+            }}
+          >
             <img
               src={pageSrc(prevLeft)}
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
@@ -248,23 +269,6 @@ export default function SketchbookSection() {
           ›
         </button>
       </div>
-
-      {/* ===== RESPONSIVE SKETCHBOOK ===== */}
-      <style jsx>{`
-        @media (max-width: 1024px) {
-          #sketchbook > div:first-child {
-            width: 90% !important;
-            height: auto !important;
-          }
-        }
-
-        @media (max-width: 640px) {
-          #sketchbook > div:first-child {
-            width: 100% !important;
-            height: calc(100vw * 0.7) !important; /* sayfa oranını koru, mobilde uygun boyut */
-          }
-        }
-      `}</style>
     </section>
   );
 }
