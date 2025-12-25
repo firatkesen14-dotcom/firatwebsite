@@ -69,14 +69,14 @@ const ProjectsSection = () => {
         <div className="space-y-24 md:space-y-32">
           {visibleProjects.map((project, index) => (
             <div key={project.title} className="relative">
-              {/* NeoNest background video */}
+              {/* NeoNest Background Video */}
               {project.title === "NeoNest" && (
                 <video
                   autoPlay
                   loop
                   muted
                   playsInline
-                  className="absolute inset-0 w-full h-full object-cover z-0 filter blur-sm"
+                  className="absolute top-0 left-0 w-full h-full object-cover z-0 filter blur-sm"
                   style={{ opacity: 0.35 }}
                   src="/videos/neonest.mp4"
                 />
