@@ -18,7 +18,10 @@ const ContactSection = () => {
           {/* Email */}
           <div className="mb-12">
             <a
-              href="mailto:firatkesen14@gmail.com"
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=firatkesen14@gmail.com&su=Hello%20Firat&body=Hi%20Firat,"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
               className="group inline-flex items-center gap-3 text-xl md:text-2xl text-foreground hover:text-muted-foreground transition-colors duration-300"
             >
               <Mail size={24} className="text-muted-foreground" />
@@ -35,6 +38,7 @@ const ContactSection = () => {
               href="https://www.fiverr.com/firatkesen/buying?source=avatar_menu_profile"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
               className="group flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
             >
               <span className="tracking-wide">Fiverr</span>
@@ -50,6 +54,7 @@ const ContactSection = () => {
               href="https://www.upwork.com/freelancers/~012282e88904824f59"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
               className="group flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
             >
               <span className="tracking-wide">Upwork</span>
