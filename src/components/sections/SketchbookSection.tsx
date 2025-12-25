@@ -105,7 +105,7 @@ export default function SketchbookSection() {
   return (
     <section
       id="sketchbook"
-      className="py-32 flex flex-col items-center"
+      className="py-32 flex flex-col items-center border-t border-border/50"
     >
       {/* ===== EKLENEN TEK BLOK (CONTACT PATTERN) ===== */}
       <header className="mb-16 text-center">
