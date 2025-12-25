@@ -69,22 +69,20 @@ const ProjectsSection = () => {
         <div className="space-y-24 md:space-y-32">
           {visibleProjects.map((project, index) => (
             <div key={project.title} className="relative">
-              {/* Sadece NeoNest için video arka plan */}
+              {/* NeoNest background video */}
               {project.title === "NeoNest" && (
                 <video
                   autoPlay
                   loop
                   muted
                   playsInline
-                  className="absolute top-0 left-0 w-full h-full object-cover z-0 filter blur-sm"
+                  className="absolute inset-0 w-full h-full object-cover z-0 filter blur-sm"
                   style={{ opacity: 0.35 }}
                   src="/videos/neonest.mp4"
                 />
               )}
 
-              {/* Project Card */}
               <ProjectCard {...project} index={index} />
-
               {index < visibleProjects.length - 1 && (
                 <div className="section-divider mt-24 md:mt-32" />
               )}
