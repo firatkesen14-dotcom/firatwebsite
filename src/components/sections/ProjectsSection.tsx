@@ -51,7 +51,7 @@ const ProjectsSection = () => {
   return (
     <section
       id="projects"
-      className="py-24 md:py-32 border-t border-border/50 relative"
+      className="py-24 md:py-32 border-t border-border/50 relative overflow-hidden"
     >
       <div className="container-wide relative z-10">
         {/* Section Header */}
@@ -77,7 +77,6 @@ const ProjectsSection = () => {
                   muted
                   playsInline
                   preload="auto"
-                  poster="/placeholder.svg"
                   className="absolute top-[-20px] left-1/2 -translate-x-1/2 h-full object-cover z-0 filter blur-sm"
                   style={{ width: "100vw", maxWidth: "none", opacity: 0.35 }}
                   src="/videos/neonest1.mp4"
