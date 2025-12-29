@@ -8,7 +8,7 @@ const projects = [
     description:
       "A comprehensive neonatal care system designed to provide optimal thermal regulation and monitoring for premature infants, integrating advanced sensors with intuitive caregiver interfaces.",
     modelSrc: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
-    images: ["/placeholder.svg", "/placeholder.svg"],
+    images: ["/renders/neonest1.png", "/renders/neonest2.png"],
   },
   {
     title: "Angoray",
@@ -24,7 +24,7 @@ const projects = [
     description:
       "An inclusive urban park redesign focusing on accessibility and social engagement for users aged 50 and above, incorporating adaptive seating, clear navigation, and sensory gardens.",
     modelSrc: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
-    images: ["/renders/genciz1.png", "/placeholder.svg"], // ✅ SADECE BURASI DEĞİŞTİ
+    images: ["/renders/genciz1.png", "/placeholder.svg"],
   },
   {
     title: "Game Console Redesign",
@@ -51,7 +51,7 @@ const ProjectsSection = () => {
   return (
     <section
       id="projects"
-      className="py-24 md:py-32 border-t border-border/50 relative overflow-hidden"
+      className="py-24 md:py-32 border-t border-border/50 relative"
     >
       <div className="container-wide relative z-10">
         {/* Section Header */}
@@ -98,7 +98,7 @@ const ProjectsSection = () => {
               )}
 
               {/* Gençİz Background Video */}
-              {project.title === "Gençİz - Gençlik Park Reimagined" && (
+              {project.title.startsWith("Gençİz") && (
                 <video
                   autoPlay
                   loop
