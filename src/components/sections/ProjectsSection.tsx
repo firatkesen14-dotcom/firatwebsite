@@ -24,7 +24,7 @@ const projects = [
     description:
       "An inclusive urban park redesign focusing on accessibility and social engagement for users aged 50 and above, incorporating adaptive seating, clear navigation, and sensory gardens.",
     modelSrc: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
-    images: ["/placeholder.svg", "/placeholder.svg"],
+    images: ["/renders/genciz1.png", "/placeholder.svg"],
   },
   {
     title: "Game Console Redesign",
