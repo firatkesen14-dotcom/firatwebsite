@@ -19,7 +19,7 @@ const projects = [
     images: ["/placeholder.svg", "/placeholder.svg"],
   },
   {
-    title: "Gençlik Parkı Reimagined",
+    title: "Gençİz - Gençlik Park Reimagined",
     type: "Urban Space for 50+ Users",
     description:
       "An inclusive urban park redesign focusing on accessibility and social engagement for users aged 50 and above, incorporating adaptive seating, clear navigation, and sensory gardens.",
@@ -51,7 +51,7 @@ const ProjectsSection = () => {
   return (
     <section
       id="projects"
-      className="py-24 md:py-32 border-t border-border/50 relative"
+      className="py-24 md:py-32 border-t border-border/50 relative overflow-hidden"
     >
       <div className="container-wide relative z-10">
         {/* Section Header */}
@@ -76,6 +76,7 @@ const ProjectsSection = () => {
                   loop
                   muted
                   playsInline
+                  preload="auto"
                   className="absolute top-[-20px] left-1/2 -translate-x-1/2 h-full object-cover z-0 filter blur-sm"
                   style={{ width: "100vw", maxWidth: "none", opacity: 0.35 }}
                   src="/videos/neonest1.mp4"
@@ -89,9 +90,24 @@ const ProjectsSection = () => {
                   loop
                   muted
                   playsInline
+                  preload="auto"
                   className="absolute top-[-20px] left-1/2 -translate-x-1/2 h-full object-cover z-0 filter blur-sm"
                   style={{ width: "100vw", maxWidth: "none", opacity: 0.35 }}
                   src="/videos/angoray.mp4"
+                />
+              )}
+
+              {/* Gençİz Background Video */}
+              {project.title === "Gençİz - Gençlik Park Reimagined" && (
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="auto"
+                  className="absolute top-[-20px] left-1/2 -translate-x-1/2 h-full object-cover z-0 filter blur-sm"
+                  style={{ width: "100vw", maxWidth: "none", opacity: 0.35 }}
+                  src="/videos/genciz.mp4"
                 />
               )}
 
