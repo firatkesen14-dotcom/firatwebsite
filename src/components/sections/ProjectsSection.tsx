@@ -51,7 +51,7 @@ const ProjectsSection = () => {
   return (
     <section
       id="projects"
-      className="py-24 md:py-32 border-t border-border/50 relative overflow-hidden"
+      className="py-24 md:py-32 border-t border-border/50 relative"
     >
       <div className="container-wide relative z-10">
         {/* Section Header */}
@@ -76,10 +76,22 @@ const ProjectsSection = () => {
                   loop
                   muted
                   playsInline
-                  preload="auto"
                   className="absolute top-[-20px] left-1/2 -translate-x-1/2 h-full object-cover z-0 filter blur-sm"
                   style={{ width: "100vw", maxWidth: "none", opacity: 0.35 }}
                   src="/videos/neonest1.mp4"
+                />
+              )}
+
+              {/* Angoray Background Video */}
+              {project.title === "Angoray" && (
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="absolute top-[-20px] left-1/2 -translate-x-1/2 h-full object-cover z-0 filter blur-sm"
+                  style={{ width: "100vw", maxWidth: "none", opacity: 0.35 }}
+                  src="/videos/angoray.mp4"
                 />
               )}
 
