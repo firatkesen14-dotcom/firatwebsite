@@ -8,10 +8,7 @@ const projects = [
     description:
       "A comprehensive neonatal care system designed to provide optimal thermal regulation and monitoring for premature infants, integrating advanced sensors with intuitive caregiver interfaces.",
     modelSrc: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
-    images: [
-      "/renders/neonest1.png",
-      "/renders/neonest2.png",
-    ],
+    images: ["/renders/neonest1.png", "/renders/neonest2.png"],
   },
   {
     title: "Angoray",
@@ -19,10 +16,7 @@ const projects = [
     description:
       "A modern metro train concept balancing passenger comfort with operational efficiency. The design emphasizes accessibility, natural wayfinding, and sustainable material choices.",
     modelSrc: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
-    images: [
-      "/renders/angoray1.png",
-      "/renders/angoray2.png",
-    ],
+    images: ["/renders/angoray1.png", "/renders/angoray2.png"],
   },
   {
     title: "Gençİz - Gençlik Park Reimagined",
@@ -30,10 +24,7 @@ const projects = [
     description:
       "An inclusive urban park redesign focusing on accessibility and social engagement for users aged 50 and above, incorporating adaptive seating, clear navigation, and sensory gardens.",
     modelSrc: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
-    images: [
-      "/renders/genciz1.png",
-      "/renders/genciz2.png",
-    ],
+    images: ["/renders/genciz1.png", "/renders/genciz2.png"],
   },
   {
     title: "Game Console Redesign",
@@ -41,10 +32,7 @@ const projects = [
     description:
       "An ergonomic study of handheld gaming devices, addressing extended use comfort through refined grip geometry, weight distribution, and thermal management solutions.",
     modelSrc: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
-    images: [
-      "/renders/console1.png",
-      "/renders/console2.png",
-    ],
+    images: ["/renders/console1.png", "/renders/console2.png"],
   },
   {
     title: "Portable Toilet",
@@ -52,10 +40,7 @@ const projects = [
     description:
       "A rapidly deployable sanitation unit designed for disaster relief scenarios, prioritizing dignity, hygiene, and structural stability in challenging field conditions.",
     modelSrc: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
-    images: [
-      "/renders/toilet1.png",
-      "/renders/toilet2.png",
-    ],
+    images: ["/renders/toilet1.png", "/renders/toilet2.png"],
   },
 ];
 
@@ -84,7 +69,7 @@ const ProjectsSection = () => {
         <div className="space-y-24 md:space-y-32">
           {visibleProjects.map((project, index) => (
             <div key={project.title} className="relative">
-              {/* Background Videos */}
+              {/* NeoNest Background Video */}
               {project.title === "NeoNest" && (
                 <video
                   autoPlay
@@ -92,12 +77,13 @@ const ProjectsSection = () => {
                   muted
                   playsInline
                   preload="auto"
-                  className="absolute top-[-20px] left-1/2 -translate-x-1/2 w-screen h-[120%] object-cover z-0 blur-sm"
-                  style={{ opacity: 0.35 }}
+                  className="absolute top-[-20px] left-1/2 -translate-x-1/2 h-full object-cover z-0 filter blur-sm"
+                  style={{ width: "100vw", maxWidth: "none", opacity: 0.35 }}
                   src="/videos/neonest1.mp4"
                 />
               )}
 
+              {/* Angoray Background Video */}
               {project.title === "Angoray" && (
                 <video
                   autoPlay
@@ -105,25 +91,27 @@ const ProjectsSection = () => {
                   muted
                   playsInline
                   preload="auto"
-                  className="absolute top-[-20px] left-1/2 -translate-x-1/2 w-screen h-[120%] object-cover z-0 blur-sm"
-                  style={{ opacity: 0.35 }}
+                  className="absolute top-[-20px] left-1/2 -translate-x-1/2 h-full object-cover z-0 filter blur-sm"
+                  style={{ width: "100vw", maxWidth: "none", opacity: 0.35 }}
                   src="/videos/angoray.mp4"
                 />
               )}
 
-              {project.title.startsWith("Gençİz") && (
+              {/* Gençİz Background Video */}
+              {project.title === "Gençİz - Gençlik Park Reimagined" && (
                 <video
                   autoPlay
                   loop
                   muted
                   playsInline
                   preload="auto"
-                  className="absolute top-[-20px] left-1/2 -translate-x-1/2 w-screen h-[120%] object-cover z-0 blur-sm"
-                  style={{ opacity: 0.35 }}
+                  className="absolute top-[-20px] left-1/2 -translate-x-1/2 h-full object-cover z-0 filter blur-sm"
+                  style={{ width: "100vw", maxWidth: "none", opacity: 0.35 }}
                   src="/videos/genciz.mp4"
                 />
               )}
 
+              {/* Game Console Background Video */}
               {project.title === "Game Console Redesign" && (
                 <video
                   autoPlay
@@ -131,12 +119,13 @@ const ProjectsSection = () => {
                   muted
                   playsInline
                   preload="auto"
-                  className="absolute top-[-20px] left-1/2 -translate-x-1/2 w-screen h-[120%] object-cover z-0 blur-sm"
-                  style={{ opacity: 0.35 }}
+                  className="absolute top-[-20px] left-1/2 -translate-x-1/2 h-full object-cover z-0 filter blur-sm"
+                  style={{ width: "100vw", maxWidth: "none", opacity: 0.35 }}
                   src="/videos/console.mp4"
                 />
               )}
 
+              {/* Portable Toilet Background Video */}
               {project.title === "Portable Toilet" && (
                 <video
                   autoPlay
@@ -144,8 +133,8 @@ const ProjectsSection = () => {
                   muted
                   playsInline
                   preload="auto"
-                  className="absolute top-[-20px] left-1/2 -translate-x-1/2 w-screen h-[120%] object-cover z-0 blur-sm"
-                  style={{ opacity: 0.35 }}
+                  className="absolute top-[-20px] left-1/2 -translate-x-1/2 h-full object-cover z-0 filter blur-sm"
+                  style={{ width: "100vw", maxWidth: "none", opacity: 0.35 }}
                   src="/videos/toilet.mp4"
                 />
               )}
@@ -153,14 +142,14 @@ const ProjectsSection = () => {
               <ProjectCard {...project} index={index} />
 
               {index < visibleProjects.length - 1 && (
-                <div className="section-divider" />
+                <div className="section-divider mt-24 md:mt-32" />
               )}
             </div>
           ))}
 
           {/* View More Button */}
           {!showAll && (
-            <div className="text-center">
+            <div className="text-center mt-12">
               <button
                 onClick={() => setShowAll(true)}
                 className="px-6 py-3 border border-foreground rounded-lg text-foreground hover:bg-foreground hover:text-background transition"
